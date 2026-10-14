@@ -1,4 +1,6 @@
-# Lean the Easy Way
+# Lean for All
+
+*the easy way*
 
 A month of short daily lessons for reading Lean, for people who have never seen a proof
 assistant. The goal is practical: look at a Lean theorem, perhaps written by an AI, say in
@@ -54,7 +56,7 @@ Once:
 2. In this folder:
    ```console
    git add .
-   git commit -m "Lean the Easy Way"
+   git commit -m "Lean for All"
    git remote add origin git@github.com:<your-user>/lean-the-easy-way.git
    git push -u origin main
    ```

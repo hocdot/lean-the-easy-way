@@ -57,10 +57,14 @@ export function About() {
     <div className="about card">
       <h2>About</h2>
       <p>
-        <strong>Lean the Easy Way</strong> teaches you to read Lean, the proof assistant, a little every day for a month. The aim is
+        <strong>Lean for All</strong> teaches you to read Lean, the proof assistant, the easy way: a little every day for a month. The aim is
         practical: to look at a Lean theorem, perhaps written by an AI, put it in plain words, and judge whether it proves what it
         claims. A proof can be checked by Lean and still be empty, when its hypotheses can never hold, when it assumes its own
         conclusion, or when its statement is not the claim.
+      </p>
+      <p className="muted">
+        About the logo: <code>∀</code> is read “for all”, and here it leans against a wall, at ease. So it says “Lean for all”,
+        the easy way. Together with the wall it also makes <code>∀N</code>, the end of Lean’s own wordmark, L∃∀N.
       </p>
       <h3>How it teaches</h3>
       <ul>

@@ -203,7 +203,12 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
 .logo-wall { fill: var(--hi); }
 .logo-floor { stroke: var(--bg); stroke-width: 2.4; stroke-linecap: round; opacity: 0.35; }
 .logo-mark { fill: none; stroke: var(--bg); stroke-width: 4.6; stroke-linecap: round; stroke-linejoin: round; }
-.brand h1 { font-family: var(--font-display); font-size: 27px; line-height: 1; letter-spacing: 0.2px; white-space: nowrap; }
+.brand { --brand-size: 27px; }
+/* the two lines hug their text, and the subtitle is sized to come out exactly as wide as the
+   title (measured: 0.6 of the title’s size) */
+.brand-text { display: flex; flex-direction: column; align-items: flex-start; }
+.brand h1 { font-family: var(--font-display); font-size: var(--brand-size); line-height: 1; letter-spacing: 0.2px; white-space: nowrap; }
+.brand-sub { margin-top: 4px; font: italic calc(var(--brand-size) * 0.6)/1 var(--font-display); color: var(--ink-2); letter-spacing: 0.2px; white-space: nowrap; }
 .tabs { display: flex; gap: 4px; }
 .tabs a {
   padding: 6px 12px;
@@ -230,7 +235,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
 
 @media (max-width: 860px) {
   .topbar { flex-wrap: wrap; gap: 10px 16px; padding: 12px 16px 4px; }
-  .brand h1 { font-size: 23px; }
+  .brand { --brand-size: 23px; }
   .top-right { margin-left: 0; }
   .top-right .btn.small { padding: 5px 6px; }
   .tabs { order: 3; width: 100%; }

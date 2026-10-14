@@ -38,7 +38,10 @@ export default function App() {
       <header className="topbar">
         <a className="brand" href="#/learn">
           <Logo />
-          <h1>Lean the Easy Way</h1>
+          <span className="brand-text">
+            <h1>Lean for All</h1>
+            <span className="brand-sub">Lean the easy way</span>
+          </span>
         </a>
         <nav className="tabs" aria-label="Sections">
           <a href="#/learn" className={route.page === 'learn' ? 'on' : ''}>Learn</a>
