@@ -49,27 +49,27 @@ is the same as running locally.
 
 Once:
 
-1. On GitHub, create an **empty public** repository named `lean-instructor-website`
+1. On GitHub, create an **empty public** repository named `lean-the-easy-way`
    (no README, license or .gitignore).
 2. In this folder:
    ```console
    git add .
    git commit -m "Lean the Easy Way"
-   git remote add origin git@github.com:<your-user>/lean-instructor-website.git
+   git remote add origin git@github.com:<your-user>/lean-the-easy-way.git
    git push -u origin main
    ```
 3. On GitHub, in the repository's **Settings → Pages → Build and deployment**, set
    **Source** to **GitHub Actions**.
 4. Open the **Actions** tab. If the first run failed (it ran before step 3), open
    "Deploy to GitHub Pages" and press **Run workflow** (or **Re-run all jobs**).
-5. When it is green, the site is at `https://<your-user>.github.io/lean-instructor-website/`.
+5. When it is green, the site is at `https://<your-user>.github.io/lean-the-easy-way/`.
 
 Every push to `main` then rebuilds the site. After changing lessons:
 
 ```console
 make snapshot   # save Lean's answers for the changed examples (needs Lean and Mathlib)
 make test       # check everything with the real Lean
-make preview    # look at the exact hosted build on http://localhost:4173/lean-instructor-website/
+make preview    # look at the exact hosted build on http://localhost:4173/lean-the-easy-way/
 git commit -am "…" && git push
 ```
 

@@ -37,7 +37,7 @@ test:             ## check every piece of Lean in the course, the practice gener
 snapshot:         ## after changing lessons: save Lean's answers for the hosted site (commit the result)
 	cd frontend && node --no-warnings scripts/snapshot.ts
 
-preview:          ## the exact GitHub Pages build (no Lean server), on http://localhost:4173/lean-instructor-website/
+preview:          ## the exact GitHub Pages build (no Lean server), on http://localhost:4173/lean-the-easy-way/
 	cd frontend && npm run preview:pages
 
 clean:            ## remove build outputs (keeps the Lean install)

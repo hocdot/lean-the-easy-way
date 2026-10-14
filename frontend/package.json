@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "node --no-warnings --test \"tests/**/*.test.ts\"",
     "lint": "oxlint",
-    "preview:pages": "VITE_STATIC=1 BASE_PATH=/lean-instructor-website/ npm run build && vite preview --base /lean-instructor-website/"
+    "preview:pages": "VITE_STATIC=1 BASE_PATH=/lean-the-easy-way/ npm run build && vite preview --base /lean-the-easy-way/"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",
