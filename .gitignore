@@ -1,0 +1,6 @@
+.tools/
+.DS_Store
+node_modules/
+frontend/dist/
+lean/.lake/
+mathlib/.lake/

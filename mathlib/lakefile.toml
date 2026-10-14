@@ -1,0 +1,9 @@
+# Mathlib, Lean's mathematics library, for the Advanced case studies and the Lab.
+# Kept apart from lean/ so the course works without it; the backend adds its
+# libraries to LEAN_PATH when this project has been set up (make mathlib).
+name = "mathlib_env"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0"
