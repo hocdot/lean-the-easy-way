@@ -192,7 +192,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
   display: flex;
   align-items: center;
   gap: 24px;
-  max-width: 1240px;
+  max-width: 1480px;
   margin: 0 auto;
   padding: 16px 24px 6px;
 }
@@ -222,7 +222,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
 .top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 
 .banner {
-  max-width: 1192px;
+  max-width: 1432px;
   margin: 10px auto 0;
   padding: 10px 14px;
   border: 1px solid var(--hi);
@@ -230,7 +230,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
   background: var(--hi-soft);
   font-size: 13.5px;
 }
-.main { max-width: 1240px; margin: 0 auto; padding: 16px 24px 48px; }
+.main { max-width: 1480px; margin: 0 auto; padding: 16px 24px 48px; }
 
 @media (max-width: 860px) {
   .topbar { flex-wrap: wrap; gap: 10px 16px; padding: 12px 16px 4px; }
@@ -285,7 +285,7 @@ code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
   .learn-side { position: static; max-height: none; order: 2; }
 }
 
-.lesson { max-width: 820px; display: flex; flex-direction: column; min-height: 520px; }
+.lesson { display: flex; flex-direction: column; min-height: 520px; }
 .lesson-head { padding: 22px 28px 12px; border-bottom: 1px solid var(--line); }
 .lesson-head h2 { margin-top: 4px; font-family: var(--font-display); font-size: 34px; line-height: 1.1; }
 .lesson-goal { margin: 6px 0 14px; color: var(--ink-2); }
@@ -483,7 +483,7 @@ pre.code.fill { border: 1px solid var(--line); border-radius: 12px; margin: 12px
 .refute p { color: var(--ink-2); }
 
 /* ---------- practice ---------- */
-.practice { max-width: 820px; margin: 0 auto; }
+.practice { max-width: 960px; margin: 0 auto; }
 .page-head { margin-bottom: 14px; }
 .page-head h2 { font-family: var(--font-display); font-size: 34px; }
 .weak { padding: 14px 18px; margin-bottom: 14px; }
@@ -578,10 +578,19 @@ blockquote.english { margin: 8px 0 4px; padding: 10px 16px; border-left: 3px sol
 .check.pass .c-detail { color: var(--ink-3); }
 
 /* ---------- about ---------- */
-.about { max-width: 820px; margin: 0 auto; padding: 24px 28px; }
+.about { max-width: 960px; margin: 0 auto; padding: 24px 28px; }
 .about h2 { font-family: var(--font-display); font-size: 34px; margin-bottom: 10px; }
 .about h3 { font-family: var(--font-display); font-size: 22px; margin: 22px 0 8px; }
 .about p, .about li { color: var(--ink-2); }
 .about ul { padding-left: 20px; }
 .sources { list-style: none; padding: 0 !important; display: flex; flex-direction: column; gap: 10px; }
 @media (max-width: 600px) { .about { padding: 18px 16px; } }
+
+/* ---------- wide screens: a little larger, so the wider lesson stays easy to read ---------- */
+@media (min-width: 1400px) {
+  .md { font-size: 16.5px; }
+  .question .q-prompt { font-size: 17px; }
+  .lesson-head, .lesson-body, .lesson-foot { padding-left: 36px; padding-right: 36px; }
+  .lesson-head h2 { font-size: 38px; }
+  pre.code { font-size: 14px; }
+}
