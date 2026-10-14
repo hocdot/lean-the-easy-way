@@ -12,6 +12,8 @@ import { useTheme, type Theme } from './theme'
 // the Lab's editor is the heaviest part of the site: load it only when the Lab is opened
 const LabView = lazy(() => import('./components/LabView').then((m) => ({ default: m.LabView })))
 
+const REPO = 'https://github.com/hocdot/lean-the-easy-way'
+
 const THEMES: { value: Theme; label: string }[] = [
   { value: 'auto', label: 'Auto' },
   { value: 'light', label: 'Light' },
@@ -43,6 +45,12 @@ export default function App() {
           <a href="#/lab" className={route.page === 'lab' ? 'on' : ''}>Lab</a>
         </nav>
         <div className="top-right">
+          <a className="btn ghost small" href={REPO} target="_blank" rel="noopener noreferrer">
+            Source code
+          </a>
+          <a className="btn ghost small" href={`${REPO}/issues/new`} target="_blank" rel="noopener noreferrer">
+            Suggest an idea
+          </a>
           <div className="seg-toggle theme" role="radiogroup" aria-label="Theme">
             {THEMES.map((t) => (
               <button
