@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react'
 import { health, STATIC } from './api'
 import { About } from './components/About'
 import { LabSoon } from './components/LabSoon'
+import { Logo } from './components/Logo'
 import { DayList, LessonView } from './components/LessonView'
 import { PracticeView } from './components/PracticeView'
 import { LESSONS } from './content'
@@ -36,7 +37,7 @@ export default function App() {
     <div className={`app page-${route.page}`}>
       <header className="topbar">
         <a className="brand" href="#/learn">
-          <span className="logo" aria-hidden="true">∀</span>
+          <Logo />
           <h1>Lean the Easy Way</h1>
         </a>
         <nav className="tabs" aria-label="Sections">
