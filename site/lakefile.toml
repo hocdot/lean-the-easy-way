@@ -1,0 +1,24 @@
+# The Verso version of the site: lessons written in Lean's own documentation tool.
+# It shares Mathlib's package folder (and so its 7 GB of built files) with ../mathlib, so the
+# pinned versions in lake-manifest.json must match ../mathlib/lake-manifest.json exactly.
+# Do not run `lake update` here: it could move the shared packages to other versions.
+name = "lean_for_all"
+defaultTargets = ["site"]
+packagesDir = "../mathlib/.lake/packages"
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "v4.35.0"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0"
+
+[[lean_lib]]
+name = "LeanForAll"
+
+[[lean_exe]]
+name = "site"
+root = "SiteMain"

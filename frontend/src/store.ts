@@ -77,6 +77,9 @@ export const actions = {
   },
 }
 
+/** The progress right now (outside React). */
+export const progressNow = (): Progress => current
+
 export function useProgress(): Progress {
   const [p, setP] = useState(current)
   useEffect(() => {

@@ -1,6 +1,6 @@
 # Everything lives in this folder: Lean (via elan) is installed into .tools/elan,
 # the Lean helper is built in lean/.lake, and JS packages go in frontend/node_modules.
-.PHONY: setup mathlib dev start test snapshot preview clean
+.PHONY: setup mathlib dev start test snapshot preview verso verso-serve clean
 
 export ELAN_HOME := $(CURDIR)/.tools/elan
 export PATH := $(ELAN_HOME)/bin:$(PATH)
@@ -39,6 +39,15 @@ snapshot:         ## after changing lessons: save Lean's answers for the hosted 
 
 preview:          ## the exact GitHub Pages build (no Lean server), on http://localhost:4173/lean-the-easy-way/
 	cd frontend && npm run preview:pages
+
+verso:            ## the Verso version (needs setup + mathlib): question widgets, then Lean-checked pages in site/_out/html-multi
+	cd frontend && node --no-warnings scripts/scope-css.ts && npx vite build --config vite.verso.config.ts
+	rm -rf site/_out/html-multi   # pages from an earlier build (and their search index) would linger
+	cd site && lake build && lake exe site
+	cd frontend && node --no-warnings scripts/check-verso.ts
+
+verso-serve:      ## look at the Verso version on http://localhost:8790
+	cd site/_out/html-multi && python3 -m http.server 8790
 
 clean:            ## remove build outputs (keeps the Lean install)
 	rm -rf frontend/dist lean/.lake/build

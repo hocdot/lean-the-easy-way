@@ -78,6 +78,38 @@ git commit -am "…" && git push
 GitHub's build machine has no Lean. Its tests check the lessons, and check that the saved answers
 cover every example. If you forget `make snapshot`, the build fails and tells you so.
 
+## The Verso version (branch `verso`)
+
+The lessons are also written in [Verso](https://verso.lean-lang.org/), Lean's own documentation
+tool, in `site/`. Verso elaborates every example with real Lean when the site is built: hovering
+over code shows each name's type and documentation and the goals at each tactic, and each
+example's output (`#eval` results, errors, `sorry` warnings) is shown under it and checked
+against Lean. The interactive parts are the React components from `frontend/`, mounted into the
+Verso pages by `frontend/src/verso/widgets.tsx`: questions (by id, still defined in
+`frontend/src/content`), Practice, and the reset button. Lessons are shown one step at a time
+(`frontend/src/verso/Stepper.tsx`); a ```` ```stepBreak``` ```` block in a lesson starts a new step.
+Since the lesson pages and the course data live in different places, `make verso` ends by checking
+that they agree (`frontend/scripts/check-verso.ts`): every question exists, every lesson's page
+asks all of its questions, and every page is where the site's links expect it.
+
+```console
+make verso         # needs make setup and make mathlib; pages in site/_out/html-multi
+make verso-serve   # http://localhost:8790
+```
+
+```
+site/
+  LeanForAll.lean          the front page: weeks, Advanced, Practice, Lab, About
+  LeanForAll/WeekN.lean    one chapter per week (and Advanced.lean)
+  LeanForAll/DayNN.lean    one page per lesson; CaseN.lean for the Advanced cases
+  LeanForAll/Meta/         the `question`, `practice` and `resetProgress` blocks
+  SiteMain.lean            Verso's settings: theme, fonts, logo, links
+  assets/                  theme (lfa-theme.css/.js), logo; widgets built by make verso
+```
+
+The site shares `mathlib/.lake/packages` with `mathlib/`, so `site/lake-manifest.json` pins the
+same versions as `mathlib/lake-manifest.json`. Do not run `lake update` in `site/`.
+
 ## How it works
 
 ```

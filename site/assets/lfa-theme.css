@@ -1,0 +1,469 @@
+/* Lean for All: the site's look on Verso's pages. The palette (the first three blocks) is copied from
+   frontend/src/styles.css: keep them in step. Verso's colors and fonts are CSS variables
+   (verso-vars.css, book.css); this file gives them the site's palette, adds dark values, and
+   styles the theme switch that lfa-theme.js puts in the header. */
+
+:root {
+  --bg: #f5f4f0;
+  --surface: #fffefb;
+  --surface-2: #f0eee8;
+  --ink: #1c1b19;
+  --ink-2: #55534d;
+  --ink-3: #8a877f;
+  --line: #e4e1d9;
+  --line-2: #d2cec3;
+  --accent: #26394a;
+  --accent-ink: #fbfaf7;
+  --accent-soft: rgba(38, 57, 74, 0.07);
+  --lo: #3a6a8f;
+  --lo-soft: rgba(58, 106, 143, 0.14);
+  --hi: #b05d35;
+  --hi-soft: rgba(176, 93, 53, 0.12);
+  --warn: #9a7212;
+  --warn-soft: rgba(165, 123, 24, 0.1);
+  --good: #3f7a55;
+  --good-soft: rgba(52, 150, 88, 0.12);
+  --bad: #b3364a;
+  --bad-soft: rgba(210, 52, 72, 0.1);
+  --tk-keyword: #7a3e9d;
+  --tk-tactic: #2c6a8a;
+  --tk-type: #8a5a14;
+  --tk-symbol: #b05d35;
+  --tk-number: #3f7a55;
+  --shadow: 0 1px 2px rgba(28, 27, 25, 0.04), 0 8px 24px -12px rgba(28, 27, 25, 0.12);
+  --radius: 14px;
+  --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+  --bg: #121211;
+  --surface: #1a1a18;
+  --surface-2: #22221f;
+  --ink: #ecebe5;
+  --ink-2: #b4b1a8;
+  --ink-3: #7c7970;
+  --line: #2b2a27;
+  --line-2: #3a3935;
+  --accent: #c9d6e0;
+  --accent-ink: #121211;
+  --accent-soft: rgba(201, 214, 224, 0.08);
+  --lo: #86b0cf;
+  --lo-soft: rgba(134, 176, 207, 0.16);
+  --hi: #e09b74;
+  --hi-soft: rgba(224, 155, 116, 0.14);
+  --warn: #d8b45c;
+  --warn-soft: rgba(216, 180, 92, 0.12);
+  --good: #7fb592;
+  --good-soft: rgba(110, 200, 140, 0.13);
+  --bad: #e37887;
+  --bad-soft: rgba(240, 100, 120, 0.14);
+  --tk-keyword: #c9a0e6;
+  --tk-tactic: #86bdd9;
+  --tk-type: #d9b26f;
+  --tk-symbol: #e09b74;
+  --tk-number: #8fc4a1;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #121211;
+  --surface: #1a1a18;
+  --surface-2: #22221f;
+  --ink: #ecebe5;
+  --ink-2: #b4b1a8;
+  --ink-3: #7c7970;
+  --line: #2b2a27;
+  --line-2: #3a3935;
+  --accent: #c9d6e0;
+  --accent-ink: #121211;
+  --accent-soft: rgba(201, 214, 224, 0.08);
+  --lo: #86b0cf;
+  --lo-soft: rgba(134, 176, 207, 0.16);
+  --hi: #e09b74;
+  --hi-soft: rgba(224, 155, 116, 0.14);
+  --warn: #d8b45c;
+  --warn-soft: rgba(216, 180, 92, 0.12);
+  --good: #7fb592;
+  --good-soft: rgba(110, 200, 140, 0.13);
+  --bad: #e37887;
+  --bad-soft: rgba(240, 100, 120, 0.14);
+  --tk-keyword: #c9a0e6;
+  --tk-tactic: #86bdd9;
+  --tk-type: #d9b26f;
+  --tk-symbol: #e09b74;
+  --tk-number: #8fc4a1;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+}
+
+:root {
+  --verso-structure-font-family: var(--font-ui);
+  --verso-text-font-family: var(--font-ui);
+  --verso-code-font-family: var(--font-mono);
+  --verso-text-color: var(--ink);
+  --verso-code-color: var(--ink);
+  --verso-structure-color: var(--ink);
+  --verso-selected-color: var(--accent-soft);
+
+  --verso-tooltip-color: var(--ink);
+  --verso-tooltip-bg-color: var(--surface);
+  --verso-tooltip-border-color: var(--line-2);
+  --verso-tooltip-separator-color: var(--line);
+
+  --verso-code-info-hover-bg-color: var(--lo-soft);
+  --verso-info-indicator-color: var(--lo);
+  --verso-tooltip-info-border-color: var(--lo);
+  --verso-code-warning-hover-bg-color: var(--warn-soft);
+  --verso-warning-indicator-color: var(--warn);
+  --verso-tooltip-warning-border-color: var(--warn);
+  --verso-code-error-hover-bg-color: var(--bad-soft);
+  --verso-error-indicator-color: var(--bad);
+  --verso-message-error-color: var(--bad);
+  --verso-tooltip-error-border-color: var(--bad);
+
+  --verso-tactic-state-color: var(--ink);
+  --verso-tactic-state-bg-color: var(--surface);
+  --verso-tactic-state-border-color: var(--line-2);
+  --verso-tactic-toggle-color: var(--line-2);
+  --verso-tactic-toggle-checked-color: var(--ink-3);
+
+  --verso-code-keyword-color: var(--tk-keyword);
+  --verso-code-keyword-weight: 500;
+  --verso-code-const-color: var(--tk-tactic);
+  --verso-code-var-color: var(--ink);
+  --verso-code-hover-bg-color: var(--accent-soft);
+
+  --verso-toc-background-color: var(--bg);
+  --verso-toc-border-color: var(--line);
+  --verso-toc-resize-handle-color: var(--ink-3);
+  --verso-burger-toc-visible-shadow-color: var(--bg);
+  --verso-burger-toc-hidden-color: var(--ink);
+  --verso-burger-toc-hidden-shadow-color: var(--bg);
+  --verso-background-color: var(--surface);
+}
+
+/* Verso's fixed colors, made theme-aware */
+html, body { background: var(--surface); color: var(--ink); }
+header { background: var(--surface) !important; border-bottom: 1px solid var(--line); box-shadow: none !important; }
+.header-title { color: var(--ink) !important; font-family: var(--font-display); font-weight: 400; letter-spacing: 0.2px; }
+#toc a { color: var(--ink-2); }
+#toc a:hover { color: var(--ink); }
+a { color: var(--lo); }
+main h1, main h2, main h3, .titlepage h1 { font-family: var(--font-display); font-weight: 400; letter-spacing: 0.2px; color: var(--ink); }
+main { line-height: 1.6; }
+blockquote { border-left: 3px solid var(--accent); background: var(--accent-soft); margin: 14px 0; padding: 8px 14px; border-radius: 0 10px 10px 0; color: var(--ink-2); }
+input, .search-box input { background: var(--surface); color: var(--ink); border-color: var(--line-2); }
+
+/* more of Verso's fixed colors */
+.prev-next-buttons > * { color: var(--ink) !important; }
+#toc .split-toc label.toggle-split-toc::before { background-color: var(--ink-2) !important; }
+#search-wrapper .combobox .cb_edit { border-bottom-color: var(--line-2); }
+#search-wrapper .cb_edit:empty:before { color: var(--ink-3); }
+#search-wrapper ul[role="listbox"] { background: var(--surface); color: var(--ink); }
+
+/* the theme switch (put in the header by lfa-theme.js); the search box floats over the header's
+   right end, so the switch keeps clear of it */
+.lfa-top { margin-right: 20px !important; margin-left: auto; display: flex; align-items: center; gap: 4px; flex: none; align-self: center; }
+.lfa-theme { display: inline-flex; flex: none; margin-left: 6px; border: 1px solid var(--line-2); border-radius: 9px; overflow: hidden; background: var(--surface); }
+/* "Source code" and "Suggest an idea": quiet buttons, like the React site's */
+.lfa-top-link { padding: 5px 10px; border-radius: 8px; font: 500 12.5px var(--font-ui); color: var(--ink) !important; text-decoration: none !important; white-space: nowrap; }
+.lfa-top-link:hover { background: var(--surface-2); }
+/* they are in the header now; on phones they stay at the foot of the menu */
+#meta-links { display: none !important; }
+.lfa-theme button { padding: 4px 10px; border: 0; background: transparent; font: 12.5px var(--font-ui); color: var(--ink-2); cursor: pointer; }
+.lfa-theme button + button { border-left: 1px solid var(--line-2); }
+.lfa-theme button:hover:not(.on) { background: var(--surface-2); color: var(--ink); }
+.lfa-theme button.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+
+/* phones: keep the switch clear of Verso's menu button on the left, and make it compact */
+@media screen and (max-width: 700px) {
+  .lfa-top { margin-left: 3.2rem !important; margin-right: 10px !important; gap: 6px; }
+  .lfa-theme { margin-left: 0; }
+  .lfa-top-link { display: none; }
+  #meta-links { display: flex !important; }
+  .lfa-theme button { padding: 4px 6px; font-size: 12px; }
+  /* no room for the site title next to the switch and search box; the page heading says where you are */
+  .header-title-wrapper { display: none; }
+}
+
+/* inside Verso, the page title already says "Practice" */
+.lfa .practice .page-head h2 { display: none; }
+.lfa .practice { max-width: none; }
+/* a finished lesson in the table of contents */
+.lfa-done { color: var(--good); font-weight: 600; }
+/* Verso styles every <header> as its page header: the Practice component's own heading is not needed here */
+.lfa header.page-head { display: none !important; }
+
+/* ---------- layout: one calm reading column ---------- */
+.content-wrapper { max-width: 860px !important; }
+main section > p, main section li { line-height: 1.65; }
+main section > h1 { font-size: 2.4rem; line-height: 1.1; margin-bottom: 0.4em; }
+
+/* the subtitle under the site name, as on the main site */
+.header-title h1::after {
+  content: 'Lean the easy way';
+  display: block;
+  margin-top: 3px;
+  font: italic 0.5em/1 var(--font-display);
+  color: var(--ink-2);
+  letter-spacing: 0.2px;
+}
+.header-title h1 { line-height: 1; }
+
+/* previous / next: small buttons instead of big bold text */
+.prev-next-buttons { gap: 12px; margin: 6px 0 22px; align-items: center; }
+.prev-next-buttons > a {
+  flex: 0 1 auto !important;
+  max-width: 48%;
+  padding: 6px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  background: var(--surface);
+  font: 500 13px/1.3 var(--font-ui) !important;
+  color: var(--ink-2) !important;
+}
+.prev-next-buttons > a:hover { background: var(--surface-2); color: var(--ink) !important; }
+.prev-next-buttons .arrow { color: var(--ink-3); }
+
+/* sidebar: a compact list (tidied by lfa-widgets.js), no lines or triangles, the current page
+   marked with an accent bar */
+#toc a { text-decoration: none !important; }
+#toc .split-tocs { margin-top: 1.1rem; padding: 0 12px 0 14px; font-family: var(--font-ui); }
+#toc .split-toc { margin-bottom: 1.4rem; }
+#toc .split-toc label.toggle-split-toc { display: none; }
+#toc .split-toc > :not(:first-child) { max-height: none !important; margin-left: 0 !important; overflow: visible; }
+#toc .split-toc table { border: 0 !important; padding: 0 !important; width: 100%; border-collapse: separate; border-spacing: 0 2px; }
+#toc .split-toc td.num { display: none; }
+#toc .split-toc td { padding: 0 !important; }
+#toc .split-toc .title { margin-bottom: 6px; padding-left: 13px; font: 600 13px/1.4 var(--font-ui); color: var(--ink-3); }
+#toc .split-toc .title a { color: var(--ink-3) !important; font-weight: 600; text-decoration: none !important; }
+#toc .split-toc .title .toc-k { margin-right: 0.22em; }
+#toc .split-toc .title .current { text-decoration: none; }
+#toc .split-toc td a { display: block; padding: 5px 10px; border-radius: 8px; border-left: 3px solid transparent; font-size: 15px; line-height: 1.4; color: var(--ink-2); }
+#toc .split-toc td a:hover { background: var(--surface-2); color: var(--ink); }
+#toc .split-toc tr.current > td > a { background: var(--accent-soft); border-left-color: var(--accent); color: var(--ink) !important; font-weight: 600; }
+#toc .split-toc .current td:not(.num) { text-decoration: none; }
+#toc a.toc-week .toc-k { display: block; font: 500 13px/1.4 var(--font-ui); color: var(--ink-3); }
+#toc a.toc-lesson { display: flex !important; gap: 8px; }
+#toc a.toc-lesson .toc-k { flex: 0 0 1.6em; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-3); font-weight: 500; }
+#toc a.toc-lesson.done .toc-k { color: var(--good); font-weight: 700; }
+#toc tr.toc-gap td { padding-top: 8px !important; border-top: 1px solid var(--line); }
+/* the sections inside a lesson: the lesson shows them one step at a time instead */
+#toc .split-toc:not(.book):has(.title .current a[href*='/day'], .title .current a[href*='/case']) { display: none; }
+
+/* goal displays and other plain code: a quiet box, like the main site's */
+main section > pre {
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+  font: 13.5px/1.6 var(--font-mono);
+  color: var(--ink);
+  overflow-x: auto;
+}
+main code.hl.lean.block {
+  display: block;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+/* ---------- the start page ---------- */
+/* the start page's own cards replace Verso's title, contents list and "next" links there */
+.titlepage > h1, .titlepage > .authors, .titlepage > section { display: none; }
+.content-wrapper:has(.titlepage) > nav.prev-next-buttons { display: none; }
+
+.lfa .home .hero { display: flex; gap: 28px; align-items: flex-start; padding: 10px 0 26px; }
+/* the logo's size and place are set by Home.tsx: as tall as the title, subtitle and pitch together */
+.lfa .home .hero-logo { width: 104px; height: 104px; flex: none; border-radius: 21.875%; box-shadow: var(--shadow); }
+.lfa .home .hero-title { margin: 0; font: 400 46px/1 var(--font-display); color: var(--ink); }
+.lfa .home .hero-sub { margin-top: 4px; font: italic 27px/1.1 var(--font-display); color: var(--ink-2); }
+.lfa .home .hero-pitch { margin: 14px 0 18px; max-width: 620px; font-size: 16px; color: var(--ink-2); }
+.lfa .home .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.lfa .home .hero-actions .btn { color: var(--accent-ink); text-decoration: none; }
+.lfa .home .week-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.lfa .home .week-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.lfa .home .week-card:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.lfa .home .week-card-title { font: 400 22px/1.15 var(--font-display); color: var(--ink); }
+.lfa .home .week-card-summary { flex: 1; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.lfa .home .week-card-progress { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.lfa .home .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.lfa .home .bar i { display: block; height: 100%; border-radius: 3px; background: var(--good); }
+.lfa .home .home-note { margin-top: 20px; }
+@media (max-width: 700px) {
+  .lfa .home .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .lfa .home .hero-logo { width: 72px; height: 72px; border-radius: 21.875%; }
+  .lfa .home .hero-title { font-size: 38px; }
+}
+
+/* refinements */
+.lfa .home .hero-title { text-align: left !important; }
+.header-title h1 { font-size: 1.55rem !important; margin: 0; }
+.header-title-wrapper { display: flex; align-items: center; }
+.lfa .home .week-card-summary { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+/* the start page's cards replace Verso's contents list there */
+section:has(> .titlepage) > section:has(> ol.section-toc) { display: none; }
+@media screen and (max-width: 700px) {
+  .header-title-wrapper { display: none !important; }
+}
+/* the logo draws its own rounded square (corner 14 of 64): the shadow follows the same corners, no border */
+/* the site name in the header, in the same serif as the page titles */
+.header-title h1 { font-family: var(--font-display) !important; font-weight: 400 !important; font-size: 1.85rem !important; letter-spacing: 0.2px; }
+/* the site name right next to the logo (Verso sizes the logo's area to the sidebar's width) */
+.header-logo-wrapper { flex: 0 0 auto !important; width: auto !important; padding-right: 12px !important; }
+#logo { width: auto !important; }
+#logo img { width: var(--lfa-logo, 48px) !important; height: var(--lfa-logo, 48px) !important; max-width: none !important; display: block; margin: 4px 0; }
+.header-logo-wrapper { padding-left: 12px !important; }
+
+/* ---------- a week's page: its lessons as cards ---------- */
+/* the cards replace Verso's plain list of the week's lessons */
+section:has(.lfa-widget[data-widget^='week-']) ol.section-toc { display: none; }
+.lfa .week-lessons { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lfa .lesson-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.lfa .lesson-card:hover { border-color: var(--line-2); transform: translateY(-1px); }
+.lfa .lesson-card.next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+.lfa .lesson-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-2);
+  background: var(--surface);
+  font: 600 13px var(--font-ui);
+  color: var(--ink-2);
+}
+.lfa .lesson-card.done .lesson-num { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.lfa .lesson-card.next .lesson-num { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.lfa .lesson-body-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lfa .lesson-card-title { font: 400 21px/1.2 var(--font-display); color: var(--ink); }
+.lfa .lesson-card-goal { font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.lfa .lesson-meta { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.lfa .badge { padding: 2px 9px; border-radius: 99px; font: 600 11px var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; }
+.lfa .badge.next { background: var(--accent); color: var(--accent-ink); }
+.lfa .badge.done { background: var(--good-soft); color: var(--good); }
+@media (max-width: 700px) {
+  .lfa .lesson-card { align-items: flex-start; }
+  .lfa .lesson-meta { display: none; }
+}
+/* "Lean the easy way": lfa-theme.js sizes it to the title's width once the fonts are in */
+.header-title h1::after { content: none !important; }
+.header-title h1 .lfa-title { display: block; white-space: nowrap; }
+.header-title h1 .lfa-sub { display: block; width: max-content; white-space: nowrap; margin-top: 3px; font: italic 0.615em/1 var(--font-display); color: var(--ink-2); letter-spacing: 0; }
+#logo img { margin: 0 !important; }
+/* the hero's subtitle starts near the right size; Home.tsx then fits it to the title's width */
+.lfa .home .hero-sub { font-size: calc(46px * 0.615); }
+@media (max-width: 700px) { .lfa .home .hero-sub { font-size: calc(38px * 0.615); } }
+
+/* a header tall enough for the two-line title, with the logo as tall as both lines together
+   (lfa-theme.js measures them into --lfa-logo) */
+:root:not(:has(header:empty)) { --verso-header-height: 3.75rem; }
+#logo img { max-height: none !important; }
+#toc .split-toc .title > span { white-space: nowrap; }
+
+/* ---------- a lesson one step at a time (Stepper.tsx) ---------- */
+.lfa-stepped [hidden] { display: none !important; }
+.stepper-top { margin: 4px 0 22px; }
+.stepper-top .seg { height: 7px; }
+.stepper { margin-top: 26px; }
+.stepper .lesson-foot { display: flex; justify-content: space-between; gap: 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+.stepper .wrapup { margin-bottom: 22px; }
+.lfa-widget[data-widget=step] { display: none; }
+#toc .split-toc td:last-child { width: 100%; }
+#toc .split-toc .title a .toc-k { display: inline; font: inherit; letter-spacing: inherit; }
+.stepper .lesson-foot { padding-left: 0 !important; padding-right: 0 !important; }
+#toc .split-toc table, #toc .split-toc tbody, #toc .split-toc tr, #toc .split-toc td:not(.num) { display: block; width: auto; }
+#toc .split-toc tr + tr { margin-top: 2px; }
+
+/* the sidebar in the site's serif too */
+#toc .split-tocs { --font-side: var(--font-display); }
+#toc .split-toc td a .toc-t, #toc .split-toc td a:not(:has(.toc-t)), #toc a.toc-lesson .toc-k { font: 400 16px/1.3 var(--font-side); letter-spacing: 0; }
+#toc .split-toc tr.current > td > a { font-weight: 400; }
+#toc .split-toc td a { padding-top: 4px; padding-bottom: 4px; }
+/* labels above what they label: larger and bold */
+#toc .split-toc .title, #toc .split-toc .title a { font: 600 19px/1.3 var(--font-side) !important; letter-spacing: 0; color: var(--ink) !important; }
+#toc a.toc-week .toc-k { font: 600 17.5px/1.3 var(--font-side) !important; letter-spacing: 0; color: var(--ink) !important; margin-bottom: 1px; }
+#toc a.toc-week .toc-t { color: var(--ink-2); }
+#toc .split-toc tr.current a.toc-week .toc-t { color: var(--ink); }
+#toc .split-toc .title { margin-bottom: 8px; }
+#toc .split-toc .title .toc-k { margin-right: 0.25em; }
+#toc .split-toc .title a.toc-week .toc-t { color: var(--ink); }
+
+/* the question widgets bring the React site's tokens (lfa-widgets.css): use this site's serif there too */
+html .lfa { --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif; }
+/* Newsreader is wider than the old condensed serif: a slightly smaller site name keeps both lines in the header */
+.header-title h1 { font-size: 1.6rem !important; }
+/* the open week's lessons: a divider above, like the one before Practice, then their label */
+#toc .split-toc.book { margin-bottom: 0.6rem; }
+#toc .split-toc:not(.book) { border-top: 1px solid var(--line); padding-top: 14px; }
+/* a page with nothing under it (Practice, Lab, About) gets no section of its own */
+#toc .split-toc:not(.book):not(:has(td a, ol a)) { display: none; }
+#toc .split-toc .no-toggle { display: none; }
+/* Practice, Lab and About are peers of the weeks: named in bold like "Week 1" */
+#toc .split-toc.book td a:not(:has(.toc-t)) { font: 600 17.5px/1.3 var(--font-display); color: var(--ink) !important; }
+/* each week's lessons under its entry (lfa-widgets.js), shown while the week is open: an indented outline */
+#toc.lfa-toc .split-toc:not(.book) { display: none; }
+#toc tr:not(.open) > td > table.lfa-nested { display: none; }
+#toc a.toc-week { position: relative; padding-right: 30px !important; }
+#toc .toc-chev { position: absolute; right: 10px; top: 50%; width: 8px; height: 8px; margin-top: -6px; border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3); transform: rotate(-45deg); transition: transform .15s; }
+#toc tr.open > td > a .toc-chev { transform: rotate(45deg); margin-top: -8px; }
+#toc table.lfa-nested { margin: 4px 0 8px 12px !important; padding-left: 4px !important; border-left: 1px solid var(--line-2) !important; width: auto !important; }
+#toc table.lfa-nested td a { font-size: 15.5px; }
+#toc table.lfa-nested a.toc-lesson .toc-k { flex-basis: 1.1em; }
+
+/* ---------- search: a rounded box at the header's right end, in line with the other controls; results in a card ---------- */
+:root { --search-bar-width: 220px; --selected-color: var(--surface-2); }
+@media screen and (max-width: 700px) { :root { --search-bar-width: 9.5rem; } }
+#search-wrapper { position: relative !important; top: auto !important; right: auto !important; height: auto !important; margin-right: 8px; }
+#search-wrapper .combobox .group { position: relative; }
+#search-wrapper .combobox .group::before {
+  content: ''; position: absolute; left: 10px; top: 50%; width: 14px; height: 14px; margin-top: -7px; z-index: 1; pointer-events: none;
+  background: var(--ink-3);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='6.8' cy='6.8' r='5' fill='none' stroke='black' stroke-width='1.8'/%3E%3Cpath d='M10.6 10.6 15 15' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='6.8' cy='6.8' r='5' fill='none' stroke='black' stroke-width='1.8'/%3E%3Cpath d='M10.6 10.6 15 15' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+#search-wrapper .combobox .cb_edit {
+  width: var(--search-bar-width); min-height: 30px; padding: 5px 12px 5px 32px !important;
+  border: 1px solid var(--line-2) !important; border-radius: 9px; background: var(--surface) !important;
+  font: 13px/18px var(--font-ui) !important; color: var(--ink) !important; cursor: text;
+}
+#search-wrapper .combobox .group .cb_edit:hover { border-color: var(--ink-3) !important; outline: none; }
+#search-wrapper .combobox .group.focus .cb_edit { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-soft); outline: none; }
+#search-wrapper .cb_edit:empty:before { color: var(--ink-3) !important; font-family: var(--font-ui) !important; }
+#search-wrapper ul[role="listbox"] {
+  top: calc(100% + 6px) !important; left: auto !important; right: 0 !important; width: min(440px, 92vw) !important; max-height: 26rem;
+  padding: 6px !important; border: 1px solid var(--line-2) !important; border-radius: 12px; overflow-y: auto;
+  background: var(--surface) !important; color: var(--ink) !important; box-shadow: var(--shadow);
+  font: 13.5px/1.4 var(--font-ui) !important;
+}
+#search-wrapper ul[role="listbox"] li { padding: 7px 10px !important; border-radius: 8px; font-family: var(--font-ui) !important; }
+#search-wrapper [role="listbox"].focus li[aria-selected="true"], #search-wrapper .search-result:hover {
+  background: var(--surface-2) !important; border: 0 !important; padding: 7px 10px !important;
+}
+#search-wrapper .search-result em { text-decoration: none !important; font-weight: 600; color: var(--ink); }
+/* each result: what it is in bold, then where it is, small and muted; all in one font */
+#search-wrapper .search-result p { font-family: var(--font-ui) !important; font-weight: 600; color: var(--ink); }
+#search-wrapper .search-result.full-text p:first-child { font-weight: 400; color: var(--ink-2); }
+#search-wrapper .search-result.full-text .header, #search-wrapper .search-result.full-text .header em { display: block; font: 600 13.5px/1.4 var(--font-ui) !important; color: var(--ink); margin-bottom: 2px; }
+.verso-search-results .search-result .domain { text-align: left !important; color: var(--ink-3) !important; font: 400 11.5px/1.3 var(--font-ui) !important; margin-top: 2px !important; }
+#search-wrapper .search-result-link { gap: 0 !important; }
+#search-wrapper .search-result.full-text .header em { display: inline !important; }
