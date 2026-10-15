@@ -67,8 +67,8 @@ Once:
    "Deploy to GitHub Pages" and press **Run workflow** (or **Re-run all jobs**).
 5. When it is green, the site is at `https://<your-user>.github.io/lean-the-easy-way/`.
 
-Every push to `main` then rebuilds and publishes the site (a push to `verso` only builds it, as a
-test). After changing lessons:
+Every push to `main` then rebuilds and publishes the site (about 10 minutes; a push that only
+changes docs is skipped). After changing lessons:
 
 ```console
 make verso         # check every example with real Lean and build the pages
