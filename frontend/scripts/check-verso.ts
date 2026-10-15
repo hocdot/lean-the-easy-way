@@ -1,4 +1,4 @@
-// Checks the Verso site against the course data (run by `make verso`, after the pages are
+// Checks the Verso site against the course data (run by `make site`, after the pages are
 // generated). The lesson text lives in site/LeanForAll/*.lean, but the questions and the list of
 // lessons live in src/content, and the two must agree, or things break with no error:
 //   - a question id on a page that the course data does not have shows "Unknown question";

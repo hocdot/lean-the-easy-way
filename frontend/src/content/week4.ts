@@ -30,26 +30,6 @@ theorem collatz_conjecture (n : Nat) (hn : n > 0)
 
 const STEP_DEF = `def step (n : Nat) : Nat := if n % 2 = 0 then n / 2 else 3 * n + 1`
 
-const QUADRATIC = `/-! Problem: find all integers x such that x * x = x + 6.
-    (The answer: x = 3 and x = -2.) -/
-
-/-- Solved: the equation has a solution. -/
-theorem quadratic_solved : ∃ x : Int, x * x = x + 6 := ⟨3, by decide⟩
-
-/-- Solved: 3 is the only solution. -/
-theorem only_solution (x : Nat) (h : x * x = x + 6) : x = 3 := by
-  have hx : x < 4 := by
-    apply Nat.lt_of_not_le
-    intro hx
-    have := Nat.mul_le_mul_right x hx
-    omega
-  have : x = 0 ∨ x = 1 ∨ x = 2 ∨ x = 3 := by omega
-  rcases this with rfl | rfl | rfl | rfl <;> simp_all
-
-/-- Solved: the answers are 3 and -2. -/
-theorem answers_work (x : Int) (h : x = 3 ∨ x = -2) : x * x = x + 6 := by
-  rcases h with rfl | rfl <;> decide`
-
 const QUADRATIC_FULL = `theorem quadratic_all_solutions (x : Int) : x * x = x + 6 ↔ x = 3 ∨ x = -2 := by
   constructor
   · intro h
@@ -74,74 +54,6 @@ export const week4: Week = {
       day: 22,
       title: 'What does “proved” mean?',
       goal: 'Tell a finished proof from one that skips steps or assumes things, using `#print axioms` and the Lab’s Audit.',
-      cards: [
-        `This is the last week. Everything so far was preparation for one job: **auditing**. Someone, often an AI, hands you a Lean file and says “proved”. Your job is to decide what, if anything, was proved.
-
-AIs do produce real proofs. They also produce files that look finished but are not. The tricks you will learn to spot this week:
-
-- a proof that skips steps (\`sorry\`) or assumes things (\`axiom\`),
-- hypotheses that can never hold, or that assume the answer,
-- definitions that do not mean what their names say,
-- a statement that is not the claim.
-
-Today: the first question of every audit, **is it really proved?**`,
-
-        `You met \`sorry\` before: a placeholder that skips a proof.
-
-\`\`\`lean sorry
-theorem big_claim (n : Nat) : n * n ≥ n := by
-  sorry
-\`\`\`
-
-Press **Run**. Lean does not show a red error. It shows a yellow **warning**, “declaration uses \`sorry\`”, and accepts the file. So a file full of \`sorry\` still “compiles”, and someone who only checks for errors will think it is fine.
-
-> A warning about \`sorry\` means: **nothing is proved here**. Not “almost proved”, not “proved except for a detail”. Nothing.`,
-
-        `The warning appears only where \`sorry\` is written. A theorem that *uses* an unfinished lemma looks clean:
-
-\`\`\`lean sorry
-theorem helper (n : Nat) : n ≤ n * n := by
-  sorry
-
-theorem main_result (n : Nat) : n ≤ n * n + 1 := by
-  have := helper n
-  omega
-
-#print axioms main_result
-\`\`\`
-
-Run it. The warning points at \`helper\`, not at \`main_result\`. But \`#print axioms main_result\` answers:
-
-> 'main_result' depends on axioms: [propext, sorryAx, Quot.sound]
-
-\`#print axioms\` lists everything a theorem rests on, through every lemma it uses. \`sorryAx\` is how \`sorry\` shows up. The other two, \`propext\` and \`Quot.sound\`, are standard (see next card).`,
-
-        `An \`axiom\` tells Lean to accept a statement **without proof**:
-
-\`\`\`lean
-axiom magic : ∀ n : Nat, n * n ≥ n
-
-theorem uses_magic (n : Nat) : n * n ≥ n := magic n
-
-#print axioms uses_magic
-\`\`\`
-
-No warning at all. Only \`#print axioms\` reveals \`[magic]\`. Lean trusts an axiom completely, so a false one (like \`axiom oops : 0 = 1\`) lets you prove anything.
-
-All of ordinary mathematics in Lean rests on just three standard axioms: \`propext\`, \`Classical.choice\` and \`Quot.sound\`. Seeing those is normal. **Any other name** in the list, or \`sorryAx\`, means the theorem is not fully proved.`,
-
-        `One more: \`native_decide\` settles a computation by running a compiled program and trusting its answer, instead of having Lean’s checker go through every step.
-
-\`\`\`lean
-theorem by_native : 2 ^ 20 = 1048576 := by native_decide
-
-#print axioms by_native
-\`\`\`
-
-The output names an extra axiom, \`by_native._native.native_decide.ax_1\`. This is usually fine for computations, but it is extra trust, so an auditor notes it.
-
-> In the **Lab** tab, the **Audit** button does all of this for every theorem in a file. It reports “Unfinished proof” for \`sorry\`, “Rests on a made-up assumption” for an \`axiom\`, and “Trusts compiled code” for \`native_decide\`.`,
-      ],
       questions: [
         {
           id: 'd22-q1',
@@ -216,57 +128,6 @@ theorem anything : 2 + 2 = 5 := by
       day: 23,
       title: 'Hypotheses that can never hold',
       goal: 'Recognize hypotheses that contradict each other or can never be true, and say why the theorem is then empty.',
-      cards: [
-        `Recall this theorem from Day 4:
-
-\`\`\`lean
-theorem strange (n : Nat) (h1 : n > 5) (h2 : n < 3) : n = 100 := by omega
-\`\`\`
-
-It promises: “for every n, **if** n > 5 and n < 3, then n = 100”. No number is above 5 and below 3, so the promise is never put to the test. The theorem is true, but **vacuous**: it says nothing.
-
-It is like “every unicorn in this room is purple”. True, because there are no unicorns in the room.`,
-
-        `The extreme case is a hypothesis that is plainly \`False\`:
-
-\`\`\`lean
-theorem riemann_hypothesis (h : False) : 2 + 2 = 5 := h.elim
-\`\`\`
-
-\`False\` is the statement that can never be proved. “If False, then 2 + 2 = 5” is accepted, and so is “if False, then” anything at all. Logicians say: **from False, anything follows**. (\`h.elim\` is the proof that uses this.)
-
-So when the hypotheses cannot all hold, any conclusion can be “proved”, including a famous open problem or a false statement. The name, again, means nothing.`,
-
-        `Impossible hypotheses are rarely written as \`False\`. They come in disguise:
-
-- \`(h : n < 0)\` with \`n : Nat\`: no natural number is below 0.
-- \`(h : x ≠ x)\`: everything equals itself.
-- \`(h : n + 1 = 0)\` on \`Nat\`: n + 1 is at least 1.
-- \`(h1 : a < b) (h2 : b < c) (h3 : c < a)\`: a circle of “less than”.
-- \`(h : ∀ m : Nat, m > 5)\`: this says *every* natural number is above 5. False, take m = 0.
-
-The last one is sneaky: it reads like “for m above 5”, but it is a claim about all m. Compare \`∀ m > 5, …\`, which means \`∀ m, m > 5 → …\`.`,
-
-        `Automation loves impossible hypotheses. This is accepted:
-
-\`\`\`lean
-theorem collatz_solved (n : Nat) (h : n < 0) : n = 1 := by omega
-\`\`\`
-
-\`omega\` succeeds not because Collatz is solved, but because \`n < 0\` cannot hold. **A one-word proof of a big claim is a reason to look closer.**
-
-The Lab’s Audit tries to derive \`False\` from the hypotheses alone (with \`contradiction\`, \`omega\` and \`simp_all\`), and reports “Hypotheses contradict each other” when it can. It does flag \`collatz_solved\` and \`strange\`. But it does **not** flag \`(h : ∀ m : Nat, m > 5)\`: finding the contradiction needs the idea “try m = 0”, and the automatic search does not have it.`,
-
-        `So the real test is yours, and it is simple: **find one example where all the hypotheses hold.**
-
-For \`(n : Nat) (h1 : n > 2) (h2 : n % 2 = 0)\`, n = 4 works, so these hypotheses are fine. You can even ask Lean:
-
-\`\`\`lean
-example : 4 > 2 ∧ 4 % 2 = 0 := by decide
-\`\`\`
-
-If you cannot find any example, try to show there is none. Either way, you will know whether the theorem can ever be used.`,
-      ],
       questions: [
         {
           id: 'd23-q1',
@@ -340,56 +201,6 @@ If you cannot find any example, try to show there is none. Either way, you will 
       day: 24,
       title: 'Hypotheses that assume the answer',
       goal: 'Spot hypotheses that restate the conclusion or carry the hard part of the problem.',
-      cards: [
-        `The bluntest trick: put the conclusion among the hypotheses.
-
-\`\`\`lean
-theorem square_even (n : Nat) (h : n * n % 2 = 0) : n * n % 2 = 0 := h
-\`\`\`
-
-Read it: “if n · n is even, then n · n is even”. This has the shape **P → P**, which is true of every statement P. The proof is just \`h\`: “you told me so”.
-
-The Lab’s Audit catches this exact form and reports “Assumes its own conclusion”.`,
-
-        `Usually the conclusion is not copied word for word, but **restated**. The claim was “n · n + n is always even”:
-
-\`\`\`lean
-theorem sum_even (n : Nat) (h : (n * n + n) % 2 = 0) : 2 ∣ n * n + n := by omega
-\`\`\`
-
-(\`2 ∣ m\` means “2 divides m”.) The hypothesis says the remainder of n · n + n divided by 2 is 0. That *is* “n · n + n is even”, in other words. The theorem is still P → P in disguise.
-
-The Audit finds **no red flags** here: the two sides are not written the same way, so its exact-match check does not fire. You have to read it.`,
-
-        `The subtle version: a hypothesis that is not the conclusion but **does the hard part**. Goldbach’s conjecture says every even number above 2 is a sum of two primes. Nobody has proved it.
-
-\`\`\`lean
-def IsPrime (p : Nat) : Prop := p ≥ 2 ∧ ∀ d, d ∣ p → d = 1 ∨ d = p
-
-theorem goldbach (n : Nat) (h2 : n > 2) (heven : n % 2 = 0)
-    (key : ∀ m, m > 2 → m % 2 = 0 → ∃ p q, IsPrime p ∧ IsPrime q ∧ p + q = m) :
-    ∃ p q, IsPrime p ∧ IsPrime q ∧ p + q = n :=
-  key n h2 heven
-\`\`\`
-
-\`h2\` and \`heven\` are the normal conditions of the claim. But \`key\` *is* Goldbach’s conjecture, for every m. The theorem only says “if Goldbach holds, then Goldbach holds for n”.
-
-The Audit has a check for this pattern: when the conclusion follows from one hypothesis in a single step (the proof only applies it), it reports “**One hypothesis carries the claim**”. Here it names \`key\`.`,
-
-        `This is the pattern to look for in AI-written “proofs” of famous problems. Take the Navier–Stokes equations (a famous open problem about how fluids flow): a Lean file that assumes, as a hypothesis, that the solution stays under control for all time has assumed exactly the hard part of the problem. The rest of such a proof can be real, but it only shows “if the hard part holds, the easy part follows”.
-
-The Audit’s “One hypothesis carries the claim” check has two limits:
-
-- It cannot tell whether a hypothesis is hard. That depends on what is known in mathematics. You must judge it.
-- It only sees **one-step** uses. When a hypothesis carries the claim through several steps (inside an induction, say), nothing is flagged. Day 28 shows such a file.`,
-
-        `So for **each** hypothesis, ask two questions:
-
-1. **Is it part of the claim?** “Every even n above 2 …” justifies \`n > 2\` and \`n % 2 = 0\`. Nothing in the claim justifies \`key\`.
-2. **If it is extra, is it known to be true, and much easier than the conclusion?** A standard fact is fine. An unproved statement, or one as hard as the conclusion, is not.
-
-> A hypothesis that is not in the claim must earn its place. If it is as hard as the conclusion, the theorem has moved the problem, not solved it.`,
-      ],
       questions: [
         {
           id: 'd24-q1',
@@ -461,64 +272,6 @@ theorem goldbach (n : Nat) (h2 : n > 2) (heven : n % 2 = 0)
       day: 25,
       title: 'Definitions that lie',
       goal: 'Read the body of a definition instead of trusting its name, and notice junk values.',
-      cards: [
-        `Lean does not read names, and that includes the names of definitions. A \`def\` means exactly what its body says.
-
-\`\`\`lean
-def IsPrime (n : Nat) : Prop := ∀ d, d ∣ n → d = 1 ∨ d = n
-
-theorem one_is_prime : IsPrime 1 := by
-  intro d hd
-  left
-  exact Nat.dvd_one.mp hd
-\`\`\`
-
-The body says “every divisor of n is 1 or n”. That looks like the textbook definition, but it forgot “n ≥ 2”. So 1 counts as prime. Any theorem about this \`IsPrime\` is a correct proof about a slightly wrong idea.`,
-
-        `A check that looks at too little:
-
-\`\`\`lean
-/-- Is the list sorted? -/
-def isSorted : List Nat → Bool
-  | a :: b :: _ => a ≤ b
-  | _ => true
-
-#eval isSorted [1, 5, 2]
-\`\`\`
-
-\`a :: b :: _\` means “a list that starts with a, then b, then anything”. So \`isSorted\` only compares the **first two** elements. Run it: \`[1, 5, 2]\` counts as sorted. A theorem “my sorting function always returns a list with \`isSorted\`” would prove almost nothing.
-
-The comment says “is the list sorted?”. Comments, like names, are not checked.`,
-
-        `Worst of all, a definition that is **always true**:
-
-\`\`\`lean
-/-- f repeats itself with period p. -/
-def IsPeriodic (f : Nat → Nat) : Prop := ∃ p, ∀ n, f (n + p) = f n
-
-theorem every_function_is_periodic (f : Nat → Nat) : IsPeriodic f :=
-  ⟨0, fun _ => rfl⟩
-\`\`\`
-
-The definition forgot “p > 0”. With p = 0 it says f(n) = f(n), which is true of every function. Then every theorem of the form “… is periodic” is trivially true. The proof is one line, which (as always) is a hint.`,
-
-        `**Junk values** can play the same trick. In Lean, every function gives *some* answer on every input: \`x / 0 = 0\` on numbers, and in Mathlib also \`Real.sqrt (-4) = 0\` and \`Real.log 0 = 0\`. A statement can be true only because of such a value:
-
-\`\`\`lean
-/-- Found a solution of 6 / x = 0. -/
-theorem solution_found : ∃ x : Nat, 6 / x = 0 := ⟨0, rfl⟩
-\`\`\`
-
-On paper, 6 / x = 0 has no solution. In Lean, x = 0 works, by the junk value 6 / 0 = 0. When a statement involves division, square roots or logarithms, ask: **is it true only at the junk inputs?**`,
-
-        `How to audit a definition:
-
-1. Find every \`def\` a theorem mentions, and read its body, not its name or comment.
-2. Test it on small cases with \`#eval\` or tiny theorems. Is 1 prime? Is \`[3, 1, 2]\` sorted? Is a function that never repeats “periodic”?
-3. Look for missing conditions (n ≥ 2, p > 0) and for junk values.
-
-The Lab’s Audit lists each definition as “A definition”, with a reminder: Lean checks that it is well-formed, **not that it means what its name says**. That part is yours.`,
-      ],
       questions: [
         {
           id: 'd25-q1',
@@ -595,72 +348,6 @@ theorem everything_converges (a : Nat → Nat) : ConvergesTo a 0 :=
       day: 26,
       title: 'Proving something else',
       goal: 'Compare a statement with the claim word by word, and catch statements that are weaker or different.',
-      cards: [
-        `The most common problem in AI-written Lean is not cheating. It is **statement drift**: the proof is correct, but the statement is a little different from the claim, usually weaker. Typical drifts:
-
-- \`∃\` (“some”) instead of \`∀\` (“every”)
-- \`≤\` instead of \`<\`, or \`→\` instead of \`↔\`
-- one specific number instead of every number
-- a finite range (n < 100) instead of every n
-- \`Nat\` instead of \`Int\` or the real numbers
-- the answer written into the statement
-
-Each one turns a hard claim into an easy theorem.`,
-
-        `Two small examples. Claim: “**every** n above 1 has n · n > n”. Proved:
-
-\`\`\`lean
-theorem squares_grow : ∃ n : Nat, n * n > n := ⟨2, by decide⟩
-\`\`\`
-
-That only says some n works (n = 2). One example, not every case.
-
-Claim: “n < n · n for every n above 1”. Proved:
-
-\`\`\`lean
-theorem squares_grow' (n : Nat) : n ≤ n * n := Nat.le_mul_self n
-\`\`\`
-
-\`≤\` instead of \`<\`, and the condition “above 1” dropped. True, but it is not the claim: it allows n · n = n.`,
-
-        `A finite range is testing in disguise. Euler noticed that n · n + n + 41 is prime for n = 0, 1, 2, … . Is it prime for every n?
-
-\`\`\`lean
-${IS_PRIME_BOOL}
-
-theorem euler_prime : ∀ n, n < 40 → isPrime (n * n + n + 41) = true := by
-  decide +kernel
-
-#eval isPrime (40 * 40 + 40 + 41)
-\`\`\`
-
-(\`decide +kernel\` is \`decide\` with the computation done by Lean’s core checker; it is fully checked.) The theorem is correct, for n below 40. At n = 40 the value is 1681 = 41 · 41, not prime. A statement “for n < 40” proves nothing about all n.`,
-
-        `Changing the kind of number changes the claim. Claim: “every **integer** x with x · x = 4 equals 2”. That is false: x = −2. But on \`Nat\` there is no −2:
-
-\`\`\`lean
-theorem square_four (x : Nat) (h : x * x = 4) : x = 2 := by
-  have hx : x < 3 := by
-    apply Nat.lt_of_not_le
-    intro hx
-    have := Nat.mul_le_mul hx hx
-    omega
-  have : x = 0 ∨ x = 1 ∨ x = 2 := by omega
-  rcases this with rfl | rfl | rfl <;> simp_all
-\`\`\`
-
-A false claim, “proved”, by quietly choosing a smaller world. Always check the type: \`Nat\`, \`Int\`, or (in Mathlib) \`ℝ\`.`,
-
-        `Last, a file can change what symbols mean:
-
-\`\`\`lean
-instance weirdLT : LT Nat := ⟨fun _ _ => True⟩
-
-theorem five_lt_two : (5 : Nat) < 2 := trivial
-\`\`\`
-
-The \`instance\` redefines \`<\` on \`Nat\` as “always true”. A \`notation\` line can do the same for a new symbol. The Lab’s Audit warns “Defines its own notation” or notes “Defines an instance”. For notation, its English reading also shows the real meaning (a reversed symbol \`10 ≺ 3\` reads as \`3 ≤ 10\`). For an instance it cannot: \`5 < 2\` still reads \`5 < 2\`, so find the instance and read it. Then compare the statement with the claim, **word by word**.`,
-      ],
       questions: [
         {
           id: 'd26-q1',
@@ -741,48 +428,6 @@ theorem five_lt_two : (5 : Nat) < 2 := trivial`,
       day: 27,
       title: 'The audit checklist',
       goal: 'Audit a theorem in five steps, and use the Lab’s Audit report while knowing what it cannot see.',
-      cards: [
-        `Everything this week fits in five questions. Ask them in order, for every theorem that matters:
-
-1. **Is it really proved?** No \`sorry\`, no \`axiom\`, only standard axioms in \`#print axioms\`.
-2. **Read the statement out loud.** Does it say what was claimed, word by word: every/some, \`<\`/\`≤\`, \`→\`/\`↔\`, which numbers?
-3. **Can the hypotheses all hold?** Find one example that satisfies them all.
-4. **Is any hypothesis as hard as the claim?** Every hypothesis must be part of the claim, or a known, easier fact.
-5. **Do the definitions mean what their names say?** Read the bodies, test small cases, watch for junk values and custom notation.
-
-Steps 2 to 5 are reading. Lean cannot do them for you.`,
-
-        `The Lab’s **Audit** button helps with all five. For each theorem it reports:
-
-- **Unfinished proof** (\`sorry\`), **Rests on a made-up assumption** (an \`axiom\`), **Trusts compiled code** (\`native_decide\`): step 1.
-- **Hypotheses contradict each other**: step 3.
-- **Assumes its own conclusion**: a hypothesis identical to the conclusion, step 4.
-- **One hypothesis carries the claim**: the proof only applies one hypothesis, step 4.
-- **Hypotheses are not needed**: the conclusion is true without them. Often a sign the statement is weaker than claimed (step 2).
-- **A hypothesis is never used**: harmless, but ask why it is there.
-
-It also flags files that define notation or instances, and lists every definition (step 5).`,
-
-        `“Hypotheses are not needed” deserves an example:
-
-\`\`\`lean
-theorem big_numbers (n : Nat) (h : n > 1000) : n * 0 = 0 := Nat.mul_zero n
-\`\`\`
-
-The Audit finds that \`n * 0 = 0\` holds for every n (\`rfl\` proves it with no hypothesis). Then \`h\` is decoration, and the conclusion is probably not the interesting statement that was intended.
-
-The Audit also gives an **English reading** of each statement, built by fixed rules from the symbols, so it is never a guess. Here: “for every n : Nat, if \`n > 1000\`, then \`n * 0 = 0\`”. Use it for step 2, and compare it with the claim.`,
-
-        `Now the limits. **“No red flags found” is not a guarantee.** In this week’s examples, the Audit missed or could not judge:
-
-- \`(h : ∀ m : Nat, m > 5)\`, an impossible hypothesis: the contradiction needs the idea m = 0.
-- \`key\` in \`goldbach\` *was* flagged, but whether it is an open problem is mathematics, not logic. And a hypothesis used through several steps (Day 28) is not flagged at all.
-- \`sum_even\`: the hypothesis restates the conclusion with different symbols.
-- \`IsPeriodic\`, \`isSorted\`: definitions that say less than their names.
-- \`∃\` instead of \`∀\`, \`n < 40\`, \`Nat\` instead of \`Int\`: the statements were real theorems, just not the claims.
-
-The Audit checks **trust and obvious logic**. **Meaning** is your job.`,
-      ],
       questions: [
         {
           id: 'd27-q1',
@@ -848,47 +493,6 @@ The Audit checks **trust and obvious logic**. **Meaning** is your job.`,
       day: 28,
       title: 'Case study: a too-good-to-be-true proof',
       goal: 'Run the full checklist on a realistic file and find the hypothesis that makes it empty.',
-      cards: [
-        `The **Collatz conjecture** is a famous unsolved problem. Take a positive number. If it is even, halve it; if it is odd, triple it and add 1. Repeat. Starting from 6: 6, 3, 10, 5, 16, 8, 4, 2, 1. The conjecture says every start eventually reaches 1. No one knows if that is true.
-
-Suppose an AI posts: “I proved the Collatz conjecture in Lean. It compiles, no \`sorry\`.” Here is the whole file. Press **Run**: it is accepted.
-
-\`\`\`lean
-${COLLATZ}
-\`\`\`
-
-Take a minute to read it before the next card.`,
-
-        `**Step 1: is it proved?** The Lab’s Audit says the theorem uses only \`propext\` and \`Quot.sound\`: standard. No \`sorry\`, no \`axiom\`. And the Audit finds **no red flags** at all.
-
-**Step 2: read the statement.** The Audit’s English reading:
-
-> for every n : Nat, if \`n > 0\` and (for every m : Nat, if \`m > 1\`, then \`step m < m\`), then \`ReachesOne n\`
-
-The claim was “for every n > 0, n reaches 1”. The statement has an **extra hypothesis**, \`h_descent\`: every number above 1 gets *smaller* after one step. That is not part of the claim. Steps 3 and 4 are about it.`,
-
-        `**Step 3: can the hypotheses all hold?** \`hn : n > 0\` is fine (n = 1). Now test \`h_descent\` on a small odd number, m = 3:
-
-\`\`\`lean
-${STEP_DEF}
-
-#eval step 3
-
-theorem descent_is_false : ¬ (∀ m, m > 1 → step m < m) :=
-  fun h => absurd (h 3 (by decide)) (by decide)
-\`\`\`
-
-\`step 3 = 10\`, and 10 is not less than 3. So \`h_descent\` is **false**. The theorem can never be applied: it is vacuous, exactly like Day 23’s \`strange\`. The proof by induction is real, but it rests on a hypothesis that never holds. If every step went down, reaching 1 would be easy; the whole difficulty of Collatz is that odd numbers go *up*.`,
-
-        `What made this hard to see:
-
-- The hypothesis had a respectable name, \`h_descent\`, as if it were a known lemma.
-- The proof was long and real (induction, cases), not a suspicious one-word \`omega\`.
-- The definitions (\`step\`, \`steps\`, \`ReachesOne\`) are correct, so step 5 passes.
-- The Audit found nothing: the contradiction only appears when you plug in m = 3, and \`h_descent\` is used inside an induction, several steps deep, so “One hypothesis carries the claim” does not fire either.
-
-What found it: checklist step 3, “find an example”, done by a person. **Treat every hypothesis that is not in the claim as a suspect, and test it on small numbers.**`,
-      ],
       questions: [
         {
           id: 'd28-q1',
@@ -960,43 +564,6 @@ theorem even_descent : ∀ m, m > 1 → m % 2 = 0 → step m < m := by
       day: 29,
       title: 'Case study: the statement does not match the claim',
       goal: 'Compare formal statements of a competition problem with the problem, and find exactly how each one falls short.',
-      cards: [
-        `Competition problems are a favorite benchmark for AI provers. A known risk: if the formal statement does not match the problem, a “solved” result means nothing. Collections of formalized problems have contained such mismatches, and claims of “hundreds of problems solved” have counted some of them.
-
-Our problem:
-
-> Find all integers x such that x · x = x + 6.
-
-The answer is x = 3 and x = −2 (check: 9 = 3 + 6, and 4 = −2 + 6). “Find all” has two halves: these numbers **are** solutions, and there are **no others**.`,
-
-        `An AI submits this file, saying “solved, three theorems, no \`sorry\`”. Run it: all accepted, and the Audit finds no red flags.
-
-\`\`\`lean
-${QUADRATIC}
-\`\`\`
-
-Each theorem is correct. Now step 2: read each statement out loud, and compare it with “find all integers x with x · x = x + 6”.`,
-
-        `What each one really says:
-
-1. \`quadratic_solved\`: “there is **some** integer with x · x = x + 6”. One example (3). It does not find all, and it does not even mention −2.
-2. \`only_solution\`: “every **natural number** x with x · x = x + 6 is 3”. True, but on \`Nat\` the solution −2 does not exist. Over the integers, the statement would be false.
-3. \`answers_work\`: “if x is 3 or −2, then x is a solution”. This checks the answer, but only **one direction**: it does not show there are no other solutions.
-
-None of them is wrong. All of them are **weaker than the problem**.`,
-
-        `A statement that matches the problem says both halves at once, over the integers, with \`↔\`:
-
-\`\`\`lean
-${QUADRATIC_FULL}
-\`\`\`
-
-> for every x : Int, x · x = x + 6 **if and only if** x = 3 or x = −2.
-
-“If” is \`answers_work\`. “Only if” is the hard half: the proof rewrites the equation as (x − 3)(x + 2) = 0, and a product is zero only when a factor is.
-
-When you audit a solution to a “find all” problem, look for exactly this shape: \`∀ x : (the right type), (condition) ↔ (x is one of the answers)\`.`,
-      ],
       questions: [
         {
           id: 'd29-q1',
@@ -1067,37 +634,6 @@ theorem weak_answer (x : Int) (h : x * x = x + 6) : x = 3 ∨ x = -2 ∨ x = 100
       day: 30,
       title: 'Graduation',
       goal: 'Bring the four weeks together in one final review, and know where to go next.',
-      cards: [
-        `Look back at what you can do now.
-
-- **Week 1**: read a statement: \`∀\`, \`∃\`, \`→\`, \`∧\`, \`∨\`, \`¬\`, \`↔\`, and the quirks of \`Nat\` (\`3 - 5 = 0\`, \`7 / 2 = 3\`, \`5 / 0 = 0\`).
-- **Week 2**: follow a proof through its goal displays: what you have above \`⊢\`, what you need below it, and how each tactic changes that.
-- **Week 3**: read definitions, curly-brace arguments, hidden conversions \`↑\`, junk values and Mathlib-style notation.
-- **Week 4**: audit: is it proved, does the statement match the claim, can the hypotheses hold, do they assume the answer, do the definitions mean what they say.
-
-That is enough to read most short Lean files and say what they really prove.`,
-
-        `The one-page audit, to keep:
-
-1. **Proved?** \`#print axioms\`: only \`propext\`, \`Classical.choice\`, \`Quot.sound\`. No \`sorryAx\`, no custom axioms.
-2. **Statement = claim?** Read it out loud. Every/some, \`<\`/\`≤\`, \`→\`/\`↔\`, the type of numbers, finite ranges, the full answer.
-3. **Hypotheses possible?** Find one example.
-4. **Hypotheses honest?** Each one is part of the claim or a known, easier fact.
-5. **Definitions honest?** Read the bodies; test small cases; watch junk values and notation.
-
-And the mindset: Lean is a perfect checker of the statement **as written**. Your job is the gap between what is written and what is claimed.`,
-
-        `Where to go next, if you want to **write** Lean, not only read it:
-
-- **Natural Number Game**: a gentle, playful start to writing proofs, in the browser.
-- **Theorem Proving in Lean 4**: the official book on how Lean works.
-- **Mathematics in Lean**: doing real mathematics with Mathlib.
-- **Functional Programming in Lean**: Lean as a programming language.
-- **Stanford CS 99**: a full university course on Lean 4 (programming, proofs, and how Lean checks them), with lecture handouts you can follow on your own.
-- The **Lean Zulip** chat, where the community answers questions.
-
-And keep using the **Lab** tab: paste any Lean you meet, press **Audit**, and go through the checklist. Today’s questions mix all four weeks.`,
-      ],
       questions: [
         {
           id: 'd30-q1',

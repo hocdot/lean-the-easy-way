@@ -6,8 +6,7 @@ import Lean
 Reads a Lean file on stdin, elaborates it, and prints one JSON object:
 
 * `messages`: errors, warnings and `#eval` output, with their ranges,
-* `steps`: every tactic in the file, with the goals before and after it,
-* `audit`: the `#tutor_audit` report, when run with `--audit`.
+* `steps`: every tactic in the file, with the goals before and after it.
 
 Lines are 1-based and columns 0-based (in codepoints), as Lean reports them.
 -/
@@ -31,8 +30,6 @@ structure Step extends Range where
   goalsBefore : Array String
   goalsAfter : Array String
   deriving ToJson
-
-def auditPrefix := "TUTOR_AUDIT:"
 
 /-- Tactic nodes that only group other tactics; their children are the real steps. -/
 def groupingKinds : List SyntaxNodeKind :=
@@ -72,33 +69,26 @@ def severityName : MessageSeverity → String
   | .warning => "warning"
   | .information => "info"
 
-def main (args : List String) : IO UInt32 := do
-  let audit := args.contains "--audit"
-  let source ← (← IO.getStdin).readToEnd
-  -- the audit command goes after the user's code, so their line numbers do not move
-  let input := if audit then source ++ "\n\n#tutor_audit\n" else source
+def main : IO UInt32 := do
+  let input ← (← IO.getStdin).readToEnd
   initSearchPath (← findSysroot)
   unsafe enableInitializersExecution
   let inputCtx := Parser.mkInputContext input "Main.lean"
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let imports := HeaderSyntax.imports header ++ (if audit then #[{ module := `Tutor.Audit }] else #[])
+  let imports := HeaderSyntax.imports header
   let opts := Elab.async.set {} false
   let (env, messages) ← processHeaderCore (HeaderSyntax.startPos header) imports (HeaderSyntax.isModule header) opts messages
     inputCtx (trustLevel := 1024) (mainModule := `Main)
   let cmdState := { Command.mkState env messages opts with infoState := { enabled := true } }
   let s ← IO.processCommands inputCtx parserState cmdState
   let mut msgs : Array Msg := #[]
-  let mut report : Json := Json.null
   for m in s.commandState.messages.toList do
     let text ← m.data.toString
-    if text.startsWith auditPrefix then
-      report := (Json.parse (text.drop auditPrefix.length).toString).toOption.getD Json.null
-      continue
     let e := m.endPos.getD m.pos
     msgs := msgs.push {
       line := m.pos.line, col := m.pos.column, endLine := e.line, endCol := e.column
       severity := severityName m.severity, text }
   let steps ← collectSteps inputCtx.fileMap s.commandState.infoState.trees.toList
   IO.println (Json.mkObj [
-    ("messages", toJson msgs), ("steps", toJson steps), ("audit", report)]).compress
+    ("messages", toJson msgs), ("steps", toJson steps)]).compress
   return 0

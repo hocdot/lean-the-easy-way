@@ -1,9 +1,0 @@
-{
-  "name": "backend",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "start": "node --no-warnings server.ts",
-    "test": "node --no-warnings --test \"tests/**/*.test.ts\""
-  }
-}

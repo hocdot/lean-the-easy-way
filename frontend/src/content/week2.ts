@@ -9,57 +9,6 @@ export const week2: Week = {
       day: 8,
       title: 'Proofs are step by step',
       goal: 'Read a goal display: what you have, what you still need, and when the proof is done.',
-      cards: [
-        `Last week most proofs were one word, like \`rfl\`. Longer proofs start with \`by\`:
-
-\`\`\`lean
-theorem bigger (n : Nat) (h : n > 5) : n > 3 := by
-  omega
-\`\`\`
-
-After \`by\` comes a list of **tactics**, one per line. A tactic is an instruction such as “compute both sides” or “assume the if-part”. Each tactic changes what is left to prove, and Lean checks every step.
-
-You will not write tactics in this course. You will learn to **follow** them, the way you follow the moves of a chess game someone else plays.`,
-
-        `To follow a proof, look at the **goal display**. Lean shows it at every step. At the start of the proof above, it looks like this:
-
-\`\`\`
-n : Nat
-h : n > 5
-⊢ n > 3
-\`\`\`
-
-- Above the \`⊢\` is what you **have**: the variable \`n\` and the hypothesis \`h\`, which you may use.
-- After the \`⊢\` (read it “prove”) is the **goal**: what you still **need** to show.
-
-> In the **Lab** tab, click any line of a proof to see the goal display at that point.`,
-
-        `A proof is finished when nothing is left to prove. After \`omega\` in the proof above, Lean shows **No goals**: the theorem is proved.
-
-Some tactics are **finishing** tactics. They either close the goal completely or fail with an error:
-
-- \`rfl\`: both sides of an \`=\` compute to the same value.
-- \`decide\`: a statement about specific numbers, settled by computing.
-- \`omega\`: arithmetic with \`+\`, \`-\`, constants, \`<\`, \`≤\`, \`=\`, using the hypotheses.
-
-If the proof ends while some goal is still open, Lean reports an error, \`unsolved goals\`, and shows what is left.`,
-
-        `A tactic only works on goals of the right shape. \`decide\` computes, so it needs specific numbers. Here the statement is true, but \`decide\` cannot handle a variable:
-
-\`\`\`lean error
-theorem add_zero' (n : Nat) : n + 0 = n := by
-  decide
-\`\`\`
-
-\`rfl\` succeeds on the same statement, because \`n + 0\` computes to \`n\` whatever n is:
-
-\`\`\`lean
-theorem add_zero'' (n : Nat) : n + 0 = n := by
-  rfl
-\`\`\`
-
-> For an auditor: a rejected proof does not mean the statement is false, and an accepted one only means the steps fit together. The goal display shows you exactly what each step had to prove.`,
-      ],
       questions: [
         {
           id: 'd08-q1',
@@ -138,79 +87,6 @@ h : a < b
       day: 9,
       title: 'intro and exact',
       goal: 'Follow `intro`, `exact` and `assumption`, and predict the goal after each.',
-      cards: [
-        `How do you prove “if P, then Q”? Assume P, then show Q. The tactic \`intro\` does the assuming:
-
-\`\`\`lean
-theorem bigger' (n : Nat) : n > 5 → n > 3 := by
-  intro h
-  omega
-\`\`\`
-
-Before \`intro h\`, and after it:
-
-\`\`\`
-n : Nat
-⊢ n > 5 → n > 3
-\`\`\`
-
-\`\`\`
-n : Nat
-h : n > 5
-⊢ n > 3
-\`\`\`
-
-The if-part moved above the line, with the name \`h\`. Nothing was proved yet: \`intro\` only changes the form of the goal.`,
-
-        `\`intro\` also works on \`∀\`. To prove “for every n, …”, take an arbitrary n and prove the claim for it:
-
-\`\`\`lean
-theorem add_zero_all : ∀ n : Nat, n + 0 = n := by
-  intro n
-  rfl
-\`\`\`
-
-\`\`\`
-⊢ ∀ (n : Nat), n + 0 = n
-\`\`\`
-
-becomes
-
-\`\`\`
-n : Nat
-⊢ n + 0 = n
-\`\`\`
-
-You do not get to pick n. It stands for any natural number, so whatever follows must work for all of them.`,
-
-        `When a hypothesis says **exactly** the goal, \`exact\` finishes the proof:
-
-\`\`\`lean
-theorem pick (P Q : Prop) (hp : P) (hq : Q) : P := by
-  exact hp
-\`\`\`
-
-(\`P Q : Prop\` means P and Q are any statements at all.) \`exact hq\` would fail: \`hq\` says Q, but the goal is P.
-
-\`assumption\` does the same job without a name: it looks through the hypotheses for one that is exactly the goal.
-
-\`\`\`lean
-theorem pick' (P Q : Prop) (hp : P) (hq : Q) : Q := by
-  assumption
-\`\`\``,
-
-        `\`intro\` can take several names at once. Follow this one in the Lab, clicking each line:
-
-\`\`\`lean
-theorem first (P Q : Prop) : P → Q → P := by
-  intro hp hq
-  exact hp
-\`\`\`
-
-After \`intro hp hq\` you have \`hp : P\` and \`hq : Q\`, and the goal is \`P\`. Then \`exact hp\` closes it.
-
-> For an auditor: \`intro\` and \`exact\` are bookkeeping. They never make anything true that was not already given. If a proof is mostly \`intro\` and \`exact\`, the real content is in the hypotheses, so read those carefully.`,
-      ],
       questions: [
         {
           id: 'd09-q1',
@@ -286,80 +162,6 @@ n : Nat
       day: 10,
       title: 'Taking apart and building “and”',
       goal: 'Follow `constructor`, `h.1`/`h.2`, `obtain` and bullets on `∧` and `↔`.',
-      cards: [
-        `To prove \`P ∧ Q\` you must prove P and prove Q. The tactic \`constructor\` splits the goal into those two:
-
-\`\`\`
-P Q : Prop
-hp : P
-hq : Q
-⊢ P ∧ Q
-\`\`\`
-
-After \`constructor\` there are **two** goals, named \`case left\` and \`case right\`:
-
-\`\`\`
-case left
-P Q : Prop
-hp : P
-hq : Q
-⊢ P
-case right
-P Q : Prop
-hp : P
-hq : Q
-⊢ Q
-\`\`\`
-
-Both must be closed before the proof is done.`,
-
-        `With several goals, a proof uses **bullets**, \`·\`, to work on one goal at a time:
-
-\`\`\`lean
-theorem both (P Q : Prop) (hp : P) (hq : Q) : P ∧ Q := by
-  constructor
-  · exact hp
-  · exact hq
-\`\`\`
-
-The first bullet handles \`case left\` (goal P), the second handles \`case right\` (goal Q). Each bullet must close its goal completely. Click the lines in the Lab to watch the goals disappear one by one.`,
-
-        `\`↔\` is two implications, so \`constructor\` also splits it, into \`case mp\` (left to right) and \`case mpr\` (right to left):
-
-\`\`\`lean
-theorem shift (n : Nat) : n + 1 > 5 ↔ n > 4 := by
-  constructor
-  · intro h
-    omega
-  · intro h
-    omega
-\`\`\`
-
-After \`constructor\`:
-
-\`\`\`
-case mp
-n : Nat
-⊢ n + 1 > 5 → n > 4
-case mpr
-n : Nat
-⊢ n > 4 → n + 1 > 5
-\`\`\``,
-
-        `Now the other side: **using** a hypothesis \`h : P ∧ Q\`. It holds two facts. \`h.1\` is the first (P) and \`h.2\` the second (Q). Or \`obtain\` unpacks it into two named hypotheses:
-
-\`\`\`lean
-theorem swap (P Q : Prop) (h : P ∧ Q) : Q ∧ P := by
-  obtain ⟨hp, hq⟩ := h
-  constructor
-  · exact hq
-  · exact hp
-\`\`\`
-
-After \`obtain ⟨hp, hq⟩ := h\`, the display shows \`hp : P\` and \`hq : Q\` in place of \`h\`.
-
-> For an auditor: a hypothesis with \`∧\` is several assumptions at once. Unpack it and check each part.`,
-      ],
       questions: [
         {
           id: 'd10-q1',
@@ -456,71 +258,6 @@ What does \`case mpr\` ask for?`,
       day: 11,
       title: 'Or and there-exists',
       goal: 'Follow `left`/`right`, `rcases` on an “or”, and witnesses for `∃`.',
-      cards: [
-        `To prove \`P ∨ Q\`, it is enough to prove one side. \`left\` commits to P, \`right\` commits to Q:
-
-\`\`\`lean
-theorem pick_side : 2 = 3 ∨ 2 = 2 := by
-  right
-  rfl
-\`\`\`
-
-After \`right\` the goal is \`⊢ 2 = 2\`, and \`rfl\` closes it. Choosing \`left\` would leave \`⊢ 2 = 3\`, which nothing can prove. The step is allowed, but the proof gets stuck.`,
-
-        `**Using** \`h : P ∨ Q\` is different. You know one side holds, not which. So the proof splits into two **cases**, and both must be finished:
-
-\`\`\`lean
-theorem small (n : Nat) (h : n = 1 ∨ n = 2) : n < 3 := by
-  rcases h with h1 | h2
-  · omega
-  · omega
-\`\`\`
-
-After \`rcases h with h1 | h2\`:
-
-\`\`\`
-case inl
-n : Nat
-h1 : n = 1
-⊢ n < 3
-case inr
-n : Nat
-h2 : n = 2
-⊢ n < 3
-\`\`\`
-
-Each case has only one of the two facts.`,
-
-        `To prove \`∃ n, …\`, name a **witness** and show it works. \`refine ⟨4, ?_⟩\` says “take n = 4” and leaves the check as the goal:
-
-\`\`\`lean
-theorem four : ∃ n : Nat, n + 3 = 7 := by
-  refine ⟨4, ?_⟩
-  rfl
-\`\`\`
-
-The goal goes from \`⊢ ∃ n, n + 3 = 7\` to \`⊢ 4 + 3 = 7\`. Two shorter ways do the same in one line: \`exists 4\` (which also tries to close the check itself) and \`exact ⟨4, by decide⟩\`.`,
-
-        `**Using** \`h : ∃ n, …\` gives you *some* number with the property, but you do not choose which:
-
-\`\`\`lean
-theorem above (h : ∃ n : Nat, n > 5) : ∃ m : Nat, m > 4 := by
-  obtain ⟨x, hx⟩ := h
-  exact ⟨x, by omega⟩
-\`\`\`
-
-After \`obtain\`:
-
-\`\`\`
-x : Nat
-hx : x > 5
-⊢ ∃ m, m > 4
-\`\`\`
-
-All you know about \`x\` is \`hx\`. It might be 6 or a million.
-
-> For an auditor: an “or” hypothesis means every case must be handled, and an \`∃\` hypothesis gives you an unknown value, not a convenient one.`,
-      ],
       questions: [
         {
           id: 'd11-q1',
@@ -612,67 +349,6 @@ What do you know about \`x\`?`,
       day: 12,
       title: 'Using other theorems',
       goal: 'Follow proofs that use library theorems with `exact` and `apply`, and that record facts with `have`.',
-      cards: [
-        `Lean comes with a library of proved theorems. You can use one like a tool. \`Nat.le_of_lt\` says:
-
-\`\`\`lean
-#check Nat.le_of_lt
-\`\`\`
-
-Lean answers \`Nat.le_of_lt {n m : Nat} : n < m → n ≤ m\`: if n < m, then n ≤ m. Given a proof \`h : a < b\`, writing \`Nat.le_of_lt h\` gives a proof of \`a ≤ b\`:
-
-\`\`\`lean
-theorem weaken (a b : Nat) (h : a < b) : a ≤ b := by
-  exact Nat.le_of_lt h
-\`\`\`
-
-A hypothesis \`hpq : P → Q\` works the same way: \`hpq hp\` is a proof of Q.`,
-
-        `\`apply\` uses a theorem **backwards**. The goal is \`a ≤ b\`, and \`Nat.le_of_lt\` ends in \`≤\`, so:
-
-\`\`\`lean
-theorem weaken' (a b : Nat) (h : a < b) : a ≤ b := by
-  apply Nat.le_of_lt
-  exact h
-\`\`\`
-
-\`\`\`
-a b : Nat
-h : a < b
-⊢ a ≤ b
-\`\`\`
-
-becomes
-
-\`\`\`
-a b : Nat
-h : a < b
-⊢ a < b
-\`\`\`
-
-Read \`apply\` as: “to prove a ≤ b, it is enough to prove a < b”. The goal becomes the theorem’s if-part.`,
-
-        `Some theorems need two facts. \`Nat.lt_trans\` says \`n < m → m < k → n < k\`: if n < m and m < k, then n < k. The facts go in that order:
-
-\`\`\`lean
-theorem chain (x y z : Nat) (h1 : x < y) (h2 : y < z) : x < z := by
-  exact Nat.lt_trans h1 h2
-\`\`\`
-
-\`h1\` fills the first if-part (\`x < y\`), \`h2\` the second (\`y < z\`).`,
-
-        `\`have\` records an intermediate fact, with its proof, so later steps can use it:
-
-\`\`\`lean
-theorem two_steps (a b c : Nat) (h1 : a < b) (h2 : b < c) : a ≤ c := by
-  have h3 : a < c := Nat.lt_trans h1 h2
-  exact Nat.le_of_lt h3
-\`\`\`
-
-After the \`have\` line, the display gains \`h3 : a < c\` above the \`⊢\`, and the goal \`a ≤ c\` is unchanged.
-
-> For an auditor: unlike a hypothesis, a \`have\` comes with its own proof, which Lean checks. A proof read as a story is often a chain of \`have\` lines: each is a step of the argument.`,
-      ],
       questions: [
         {
           id: 'd12-q1',
@@ -766,68 +442,6 @@ What did \`have\` do?`,
       day: 13,
       title: 'Rewriting and automation',
       goal: 'Follow `rw` in both directions, and judge what `simp`, `omega` and `decide` really show.',
-      cards: [
-        `With an equation \`h : x = y + 1\`, \`rw [h]\` **rewrites** the goal: every \`x\` becomes \`y + 1\`.
-
-\`\`\`lean
-theorem double (x y : Nat) (h : x = y + 1) : x * 2 = y * 2 + 2 := by
-  rw [h]
-  omega
-\`\`\`
-
-\`\`\`
-x y : Nat
-h : x = y + 1
-⊢ x * 2 = y * 2 + 2
-\`\`\`
-
-becomes
-
-\`\`\`
-x y : Nat
-h : x = y + 1
-⊢ (y + 1) * 2 = y * 2 + 2
-\`\`\`
-
-\`rw\` replaces the **left** side of the equation by the **right** side. After rewriting, it also tries \`rfl\`, so it sometimes finishes the goal by itself.`,
-
-        `To go the other way, right side to left side, write \`rw [← h]\`:
-
-\`\`\`lean
-theorem move (a b : Nat) (h : a = b) (ha : a > 3) : b > 3 := by
-  rw [← h]
-  exact ha
-\`\`\`
-
-With \`h : a = b\`, \`rw [← h]\` turns every \`b\` into \`a\`: the goal goes from \`⊢ b > 3\` to \`⊢ a > 3\`, which is \`ha\`. Plain \`rw [h]\` would look for \`a\` in the goal, find none, and fail.`,
-
-        `Some tactics do a lot of work at once. This is called **automation**:
-
-- \`decide\`: computes the answer for specific numbers.
-- \`omega\`: solves arithmetic with \`+\`, \`-\`, constants and comparisons, using the hypotheses.
-- \`simp\`: simplifies the goal using many known facts. It may finish, or leave a simpler goal:
-
-\`\`\`lean
-theorem simpler (P : Prop) (hp : P) : P ∧ True := by
-  simp
-  exact hp
-\`\`\`
-
-After \`simp\` the goal \`P ∧ True\` has become \`P\`.
-
-Lean still checks everything automation does. Automation does not lower the standard of proof.`,
-
-        `Here is the auditor’s point. When automation succeeds, it tells you the goal was **easy**, not that the theorem is important. Look:
-
-\`\`\`lean
-theorem looks_deep (n : Nat) (h1 : n > 10) (h2 : n < 5) : n * n = n + 1000 := by
-  omega
-\`\`\`
-
-\`omega\` succeeds because no number is above 10 and below 5. The hypotheses contradict each other, so any conclusion follows. The statement is vacuous.
-
-> A one-line automated proof of a big-sounding claim is a reason to look closer at the hypotheses.`,
-      ],
       questions: [
         {
           id: 'd13-q1',
@@ -903,44 +517,6 @@ h : a = b
       day: 14,
       title: 'Week 2 review: a proof is a story',
       goal: 'Read a whole short proof as an argument in plain English, and pick each next step.',
-      cards: [
-        `Here is this week in one table, matching the shape of the goal or hypothesis to the tactic:
-
-- goal \`P → Q\` or \`∀ x, …\`: \`intro\`
-- goal \`P ∧ Q\` or \`P ↔ Q\`: \`constructor\` (two goals)
-- goal \`P ∨ Q\`: \`left\` or \`right\`
-- goal \`∃ x, …\`: \`refine ⟨witness, ?_⟩\`, \`exists\`, \`exact ⟨witness, proof⟩\`
-- goal exactly a hypothesis: \`exact h\` or \`assumption\`
-- have \`h : P ∧ Q\`: \`h.1\`, \`h.2\`, \`obtain ⟨hp, hq⟩ := h\`
-- have \`h : P ∨ Q\`: \`rcases h with hp | hq\` (two cases)
-- have \`h : ∃ x, …\`: \`obtain ⟨x, hx⟩ := h\`
-- have \`h : a = b\`: \`rw [h]\`, \`rw [← h]\`
-- use a theorem: \`exact thm h\`, \`apply thm\`, \`have\`
-- arithmetic or computation: \`omega\`, \`decide\`, \`simp\`, \`rfl\``,
-
-        `Read a proof as a story, one sentence per step. Click each line in the Lab to check against the goal display.
-
-\`\`\`lean
-theorem either_way (P Q R : Prop) (hpr : P → R) (hqr : Q → R) : P ∨ Q → R := by
-  intro h
-  rcases h with hp | hq
-  · exact hpr hp
-  · exact hqr hq
-\`\`\`
-
-> Assume P or Q (\`intro h\`). There are two cases. If P holds, then R follows by \`hpr\`. If Q holds, then R follows by \`hqr\`. Either way, R.
-
-That is an ordinary proof by cases, written in Lean.`,
-
-        `One last habit for auditors. After following a proof, ask: **which hypotheses did it really need, and can they all hold together?**
-
-\`\`\`lean
-theorem odd_and_even (n : Nat) (h1 : n % 2 = 0) (h2 : n % 2 = 1) : n = 12345 := by
-  omega
-\`\`\`
-
-The “story” is one word, because there is nothing to argue: no number is both even and odd. The proof is correct, and the theorem is empty.`,
-      ],
       questions: [
         {
           id: 'd14-q1',

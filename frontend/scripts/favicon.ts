@@ -1,7 +1,7 @@
-// Writes public/favicon.svg from the logo's drawing (src/components/Logo.tsx), so the tab
-// icon always matches the header. Run: node --no-warnings scripts/favicon.ts
+// Writes the site's logo (site/assets/favicon.svg: the tab icon, the header and the start page)
+// from its drawing in logo-geometry.ts. Run: node --no-warnings scripts/favicon.ts
 import { writeFileSync } from 'node:fs'
-import { BRICKS, FLOOR_X, FLOOR_Y, FOOT, FORALL, TILT, WALL } from '../src/components/geometry.ts'
+import { BRICKS, FLOOR_X, FLOOR_Y, FOOT, FORALL, TILT, WALL } from './logo-geometry.ts'
 
 const ink = '#1c1b19'
 const bg = '#f5f4f0'
@@ -12,5 +12,5 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
   `<g fill="${hi}">${BRICKS.map((b) => `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${WALL.rowH}" rx="1.2"/>`).join('')}</g>` +
   `<path d="${FORALL}" transform="translate(${FOOT.x} ${FOOT.y}) rotate(${TILT})" fill="none" stroke="${bg}" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>` +
   `</svg>\n`
-writeFileSync(new URL('../public/favicon.svg', import.meta.url), svg)
-console.log('wrote public/favicon.svg')
+writeFileSync(new URL('../../site/assets/favicon.svg', import.meta.url), svg)
+console.log('wrote site/assets/favicon.svg')

@@ -3,7 +3,7 @@
 // GitHub build), the Lean checks are skipped and the saved snapshot is checked instead.
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { leanReady, mathlibReady, runLean, type RunResult } from '../../backend/lean.ts'
+import { leanReady, mathlibReady, runLean, type RunResult } from '../scripts/lean.ts'
 import { LESSONS, questionsOf } from '../src/content/index.ts'
 import { leanJobs } from '../src/content/jobs.ts'
 import { MISCONCEPTIONS } from '../src/content/misconceptions.ts'

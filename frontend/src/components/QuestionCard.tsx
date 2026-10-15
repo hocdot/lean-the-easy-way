@@ -1,7 +1,7 @@
 // One multiple-choice question from a lesson, with immediate, concrete feedback.
 // For "pick the next step" questions, the picked tactic is run through real Lean.
 import { useEffect, useState } from 'react'
-import { BackendDown, runLean, STATIC, type RunResult } from '../api'
+import { runLean, type RunResult } from '../lean/results'
 import { fillIn, tacticOf } from '../content'
 import { MISCONCEPTIONS } from '../content/misconceptions'
 import type { Question } from '../content/types'
@@ -32,7 +32,7 @@ export function QuestionCard({
     if (!q.fillIn || !q.code) return
     runLean(fillIn(q.code, tacticOf(q.options[i].text)))
       .then((result) => setLean({ result }))
-      .catch((e) => setLean({ error: e instanceof BackendDown ? 'Lean is not running, so this cannot be shown live.' : (e as Error).message }))
+      .catch((e) => setLean({ error: (e as Error).message }))
   }
 
   // an answer shown again gets its Lean result again too
@@ -78,7 +78,7 @@ export function QuestionCard({
       {q.code && (q.fillIn ? (
         <pre className="code fill"><LeanLines code={q.code} /></pre>
       ) : (
-        <CodeBlock code={q.code} runnable={q.codeExpect !== 'skip' && !(q.generated && STATIC)} mathlib={q.mathlib} />
+        <CodeBlock code={q.code} runnable={q.codeExpect !== 'skip' && !q.generated} />
       ))}
 
       <div className={`options ${isTactics ? 'inline' : ''}`} role="radiogroup">

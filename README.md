@@ -1,6 +1,6 @@
 # Lean for All
 
-*the easy way*
+*Lean the easy way*
 
 A month of short daily lessons for reading Lean, for people who have never seen a proof
 assistant. The goal is practical: look at a Lean theorem, perhaps written by an AI, say in
@@ -9,122 +9,97 @@ checker and still be empty: its hypotheses never hold, it assumes its own conclu
 statement is not the claim.
 
 - **Learn**: 30 lessons in four weeks: reading statements, following proofs, definitions and
-  conventions, auditing. Each lesson has a few short cards and 5–6 multiple-choice questions.
+  conventions, auditing. Each lesson is a few short steps of reading and 5–6 multiple-choice
+  questions.
 - **Advanced**: three hands-on audits of real Mathlib theorems, each walked from the claim
   to the verdict with a question at every step: Cantor's theorem, Euclid's infinitely many
-  primes, and Fermat's Last Theorem with four fake "proofs" to take apart. Needs Mathlib.
+  primes, and Fermat's Last Theorem with four fake "proofs" to take apart.
 - **Practice**: sets of 8 questions, generated or drawn from past lessons, aimed at the ideas you
   mix up most.
-- **Lab**: edit and run Lean, see the goal at the cursor, and **Audit** a file. For every theorem
-  you get a word-for-word English reading and red flags: `sorry`, made-up `axiom`s,
-  `native_decide`, contradictory hypotheses, a hypothesis that is the conclusion, a hypothesis
-  that carries the whole claim, a conclusion that needs no hypotheses, unused hypotheses.
+- **Lab**: coming soon (it needs a Lean server). The branch `react` keeps the earlier React
+  version of the site, whose Lab edits, runs and audits Lean with a local Lean server.
 
 The teaching method follows the LTL Tutor (Prasad, Greenman, Nelson, Krishnamurthi, CAV 2025).
 Every wrong answer matches a named misconception, and feedback is concrete. A recency-weighted
 model of your mistakes chooses what to practise. After 5 mistakes it explains the misconception
-you show most. See `About` in the app for sources and thanks.
+you show most. See the site's About page for sources and thanks.
 
 ## Run it
 
-Needs macOS or Linux, `make`, `curl`, and Node 22.18 or newer. Everything else is installed
-inside this folder: Lean in `.tools/elan`, the Lean helper in `lean/.lake`, JS packages in
+Needs macOS or Linux, `make`, `curl`, Python 3, and Node 22.18 or newer. Everything else is
+installed inside this folder: Lean in `.tools/elan`, Mathlib in `mathlib/.lake`, JS packages in
 `frontend/node_modules`. Nothing else on your machine changes.
 
 ```console
-make setup     # once (a few minutes): Lean 4.35, the Lean helper, JS packages
-make mathlib   # optional, about 7 GB: Mathlib, for Advanced and Mathlib code in the Lab
-make start     # build the site and open http://localhost:8787
-make dev       # while editing: http://localhost:5180 with hot reload (backend on :8787)
-make test      # run every piece of Lean in the course through real Lean, plus the other tests
+make setup     # once (a few minutes): Lean 4.35, the Lean runner, JS packages
+make mathlib   # once, about 7 GB: Mathlib's prebuilt files (the Advanced cases use Mathlib)
+make site      # build the site, checking every piece of Lean in it (site/_out/html-multi)
+make serve     # look at it on http://localhost:8790
+make test      # check every question's Lean with real Lean, and the practice generator
 ```
 
-Your progress is kept in the browser (localStorage). The backend listens on `127.0.0.1` only.
-Lean code can run programs (`#eval`), so do not expose the backend to a network.
+Your progress is kept in the browser (localStorage).
 
 ## Publish on GitHub Pages
 
-The published site is the Verso version (below). GitHub's build machine installs Lean, downloads
-Mathlib's prebuilt files and runs `make verso`, so every piece of Lean on the site is checked by
-real Lean on each build (a first build takes a while; later ones reuse a cache). The Lab says
-"coming soon" there: it needs a Lean server. The React site (`frontend/`, `make dev`) is still
-how you use the Lab locally; the branch `react` keeps the version of the site published before.
+Every push to `main` rebuilds and publishes the site (about 10 minutes; a push that only changes
+docs is skipped). GitHub's build machine installs Lean, downloads Mathlib's prebuilt files and
+runs `make site`, so every piece of Lean on the site is checked by real Lean on each build.
 
-Once:
-
-1. On GitHub, create an **empty public** repository named `lean-the-easy-way`
-   (no README, license or .gitignore).
-2. In this folder:
-   ```console
-   git add .
-   git commit -m "Lean for All"
-   git remote add origin git@github.com:<your-user>/lean-the-easy-way.git
-   git push -u origin main
-   ```
-3. On GitHub, in the repository's **Settings → Pages → Build and deployment**, set
-   **Source** to **GitHub Actions**.
-4. Open the **Actions** tab. If the first run failed (it ran before step 3), open
-   "Deploy to GitHub Pages" and press **Run workflow** (or **Re-run all jobs**).
-5. When it is green, the site is at `https://<your-user>.github.io/lean-the-easy-way/`.
-
-Every push to `main` then rebuilds and publishes the site (about 10 minutes; a push that only
-changes docs is skipped). After changing lessons:
+After changing lessons or questions:
 
 ```console
-make verso         # check every example with real Lean and build the pages
-make verso-serve   # look at them on http://localhost:8790
+make snapshot   # after changing questions: save Lean's answers, which the questions show
+make test
+make site && make serve
 git commit -am "…" && git push
 ```
 
-## The Verso version
+Setting it up for a new repository, once:
 
-The lessons are written in [Verso](https://verso.lean-lang.org/), Lean's own documentation
-tool, in `site/`. Verso elaborates every example with real Lean when the site is built: hovering
-over code shows each name's type and documentation and the goals at each tactic, and each
-example's output (`#eval` results, errors, `sorry` warnings) is shown under it and checked
-against Lean. The interactive parts are the React components from `frontend/`, mounted into the
-Verso pages by `frontend/src/verso/widgets.tsx`: questions (by id, still defined in
-`frontend/src/content`), Practice, and the reset button. Lessons are shown one step at a time
-(`frontend/src/verso/Stepper.tsx`); a ```` ```stepBreak``` ```` block in a lesson starts a new step.
-Since the lesson pages and the course data live in different places, `make verso` ends by checking
-that they agree (`frontend/scripts/check-verso.ts`): every question exists, every lesson's page
-asks all of its questions, and every page is where the site's links expect it.
-
-```console
-make verso         # needs make setup and make mathlib; pages in site/_out/html-multi
-make verso-serve   # http://localhost:8790
-```
-
-```
-site/
-  LeanForAll.lean          the front page: weeks, Advanced, Practice, Lab, About
-  LeanForAll/WeekN.lean    one chapter per week (and Advanced.lean)
-  LeanForAll/DayNN.lean    one page per lesson; CaseN.lean for the Advanced cases
-  LeanForAll/Meta/         the `question`, `practice` and `resetProgress` blocks
-  SiteMain.lean            Verso's settings: theme, fonts, logo, links
-  assets/                  theme (lfa-theme.css/.js), logo; widgets built by make verso
-```
-
-The site shares `mathlib/.lake/packages` with `mathlib/`, so `site/lake-manifest.json` pins the
-same versions as `mathlib/lake-manifest.json`. Do not run `lake update` in `site/`.
+1. On GitHub, create an **empty public** repository named `lean-the-easy-way`.
+2. Push this folder to it: `git remote add origin git@github.com:<your-user>/lean-the-easy-way.git`,
+   then `git push -u origin main`.
+3. In the repository's **Settings → Pages → Build and deployment**, set **Source** to
+   **GitHub Actions**.
+4. Open the **Actions** tab. If the first run failed (it ran before step 3), open
+   "Deploy to GitHub Pages" and press **Run workflow**.
+5. When it is green, the site is at `https://<your-user>.github.io/lean-the-easy-way/`.
 
 ## How it works
 
 ```
-frontend/   React + Vite. The course is plain data in src/content/:
-            week1.ts … week4.ts       lessons and questions
-            misconceptions.ts         the misconception catalog (with explanations)
-            examples.ts               the Lab's examples
-            src/practice/logic.ts     the practice generator (see below)
-backend/    a dependency-free Node server: POST /api/run { code, audit } runs Lean
-            lean.ts                   runs lean/.lake/build/bin/tutor-run, shapes the result
-            audit.ts                  turns the audit's facts into plain-language findings
-lean/       a small Lean package:
-            Main.lean                 tutor-run: elaborates a file from stdin and prints JSON
-                                      (messages, goals before/after every tactic, audit)
-            Tutor/Audit.lean          #tutor_audit: axioms used, contradiction / circularity /
-                                      one-step / triviality checks, English reading
+site/       the site, in Verso (Lean's documentation tool)
+            LeanForAll.lean           the front page
+            LeanForAll/WeekN.lean     one chapter per week (and Advanced.lean)
+            LeanForAll/DayNN.lean     one page per lesson; CaseN.lean for the Advanced cases
+            LeanForAll/Meta/          the blocks the pages use: question, stepBreak, practice, …
+            SiteMain.lean             Verso's settings: fonts, logo, links, search-engine tags
+            assets/                   theme (lfa-theme.css/.js), logo, share image
+frontend/   the interactive parts, in React, built into site/assets/lfa-widgets.js
+            src/verso/                what goes into the pages: questions, the step-by-step
+                                      lessons, the start page, week pages, the sidebar
+            src/content/              the course data: each lesson's title, goal and questions,
+                                      and the misconception catalog
+            src/practice/             the practice generator (see below)
+            scripts/                  lean.ts (runs Lean for the tests and snapshot), snapshot,
+                                      check-verso, scope-css, the logo
+lean/       tutor-run, the Lean program behind scripts/lean.ts: it elaborates a file and prints
+            Lean's messages and the goals before and after every tactic, as JSON
+mathlib/    a Lake project pinned to the Mathlib release that matches lean/lean-toolchain
 ```
+
+**Checked by Lean.** Verso elaborates every lesson's Lean when the site is built: hovering over
+code shows each name's type and the goals at each tactic, and each example's output (`#eval`
+results, errors, `sorry` warnings) is shown under it and checked against Lean. The questions'
+Lean is checked by `make test`, and `make snapshot` saves Lean's answers for the site, which has
+no Lean server. `make site` ends by checking that the lesson pages and the course data agree:
+every question exists, every lesson's page asks all of its questions, and every page is where
+the site's links expect it. See `docs/CONTENT_GUIDE.md` for writing lessons.
+
+**Step by step.** Each lesson page is shown one step at a time, with a progress bar and
+Back / Continue; Continue waits for the question on screen. A step begins at each heading and
+around each question, and a ```` ```stepBreak ```` block starts one anywhere else.
 
 **Practice generator.** A seed statement about a few students (`∀ s : Student, Studies s → Passes s`)
 is changed by mutation rules, each tied to one misconception: `∀`↔`∃` order, `→` vs `∧`, the
@@ -132,22 +107,5 @@ converse, the scope of `¬`, how `→` groups. Mutants that mean the same as the
 checked on hundreds of small random groups of students. A group where your pick and the answer
 disagree is the feedback. The tests have Lean confirm that the printed Lean parses as intended.
 
-**Content is checked by Lean.** `make test` runs every runnable code block, question and
-misconception example through Lean and checks the expected outcome. Fences: ` ```lean `
-(must be accepted), ` ```lean error ` (must be rejected), ` ```lean sorry `,
-` ```lean fragment ` (not run, e.g. Mathlib). For "pick the next step" questions, the right
-tactic must finish the proof and every wrong one must fail. See `docs/CONTENT_GUIDE.md` for
-writing lessons.
-
-## Mathlib
-
-Mathlib, Lean's mathematics library, lives in `mathlib/` (a separate Lake project pinned to the
-Mathlib release that matches `lean/lean-toolchain`). `make mathlib` downloads it with its
-prebuilt files. The download cache stays in `.tools/mathlib-cache`. The backend finds it
-automatically. Without it, the Weeks 1–4 lessons work fully. Advanced shows its text, but
-cannot run its code, and the Lab reports "Needs Mathlib" for files that import it.
-
-A file that imports a specific part of Mathlib (`import Mathlib.Data.Nat.Prime.Infinite`)
-checks in about 2 seconds once warm. `import Mathlib` (all of it) takes 10–40 seconds.
-When a file imports Mathlib, the audit also tries `linarith`, `nlinarith` and `norm_num`
-to find contradictory hypotheses.
+**Mathlib.** `site/` shares `mathlib/.lake/packages`, so `site/lake-manifest.json` pins the same
+versions as `mathlib/lake-manifest.json`. Do not run `lake update` in `site/` or `mathlib/`.

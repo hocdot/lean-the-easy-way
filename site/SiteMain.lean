@@ -18,7 +18,7 @@ def config : RenderConfig where
   htmlDepth := 2
   -- The site's own files are copied in when the pages are generated (not compiled in), so
   -- editing them needs no Lean rebuild: the theme (palette, fonts, dark mode, the theme
-  -- switch) and the question widgets (built from frontend/ by `make verso`).
+  -- switch) and the question widgets (built from frontend/ by `make site`).
   extraFiles := [
     ("assets/favicon.svg", "favicon.svg"), ("assets/og.png", "og.png"),
     ("assets/lfa-theme.css", "lfa-theme.css"), ("assets/lfa-theme.js", "lfa-theme.js"),

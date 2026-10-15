@@ -1,11 +1,11 @@
-// Runs Lean code through lean/.lake/build/bin/tutor-run and shapes its output for the UI.
+// Runs Lean code through lean/.lake/build/bin/tutor-run (for the tests and `make snapshot`):
+// Lean's messages, and the goals before and after every tactic.
 import { spawn } from 'node:child_process'
 import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { findingsFor, fileFlags, type Finding } from './audit.ts'
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const LEAN_DIR = join(ROOT, 'lean')
 const RUNNER = join(LEAN_DIR, '.lake/build/bin/tutor-run')
 const ELAN_HOME = join(ROOT, '.tools/elan')
@@ -38,42 +38,10 @@ export interface Step extends Range {
   goalsAfter: string[]
 }
 
-export interface Hyp {
-  name: string
-  type: string
-  english: string
-  used: boolean
-  prop: boolean
-}
-
-export interface DeclReport {
-  name: string
-  kind: string
-  line: number
-  statement: string
-  english: string
-  hyps: Hyp[]
-  conclusion: string
-  conclusionEnglish: string
-  axioms: string[]
-  contradiction: string | null
-  circular: string | null
-  trivial: string | null
-  direct: string | null
-  findings: Finding[]
-}
-
-export interface Audit {
-  decls: DeclReport[]
-  file: Finding[]
-}
-
 export interface RunResult {
   ok: boolean
   messages: Message[]
   steps: Step[]
-  audit: Audit | null
-  ms: number
 }
 
 export function leanReady(): boolean {
@@ -110,9 +78,9 @@ async function slot<T>(f: () => Promise<T>): Promise<T> {
   }
 }
 
-function exec(code: string, audit: boolean): Promise<string> {
+function exec(code: string): Promise<string> {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn(RUNNER, audit ? ['--audit'] : [], {
+    const child = spawn(RUNNER, [], {
       cwd: LEAN_DIR,
       env: {
         ...process.env,
@@ -181,33 +149,21 @@ export function readableSteps(raw: Omit<Step, 'start'>[]): Step[] {
 
 const cache = new Map<string, RunResult>()
 
-export async function runLean(code: string, audit = false): Promise<RunResult> {
+export async function runLean(code: string): Promise<RunResult> {
   if (code.length > MAX_CODE) throw new Error('That file is too long for the tutor (50,000 characters at most).')
-  const key = `${audit ? 'A' : 'R'}:${code}`
-  const hit = cache.get(key)
+  const hit = cache.get(code)
   if (hit) return hit
-  const t0 = Date.now()
-  const out = await slot(() => exec(code, audit))
-  const parsed = JSON.parse(out) as {
+  const parsed = JSON.parse(await slot(() => exec(code))) as {
     messages: Message[]
     steps: Omit<Step, 'start'>[]
-    audit: Omit<DeclReport, 'findings'>[] | null
   }
   const messages = parsed.messages
-  const hasErrors = messages.some((m) => m.severity === 'error')
   const result: RunResult = {
-    ok: !hasErrors,
+    ok: !messages.some((m) => m.severity === 'error'),
     messages,
     steps: readableSteps(parsed.steps),
-    audit: audit
-      ? {
-          decls: (parsed.audit ?? []).map((d) => ({ ...d, findings: findingsFor(d) })),
-          file: fileFlags(code, hasErrors, mathlibReady()),
-        }
-      : null,
-    ms: Date.now() - t0,
   }
-  cache.set(key, result)
+  cache.set(code, result)
   if (cache.size > 500) cache.delete(cache.keys().next().value!)
   return result
 }

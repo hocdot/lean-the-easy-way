@@ -6,7 +6,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   define: {
-    'import.meta.env.VITE_STATIC': JSON.stringify('1'),
     'process.env.NODE_ENV': JSON.stringify('production'),
   },
   build: {

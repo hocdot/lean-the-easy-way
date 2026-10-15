@@ -1,5 +1,5 @@
 // The logo's drawing on a 64 × 64 grid, with even margins and one stroke weight.
-// Used by Logo.tsx and by scripts/favicon.ts (which writes the tab icon).
+// Used by favicon.ts, which writes it out as site/assets/favicon.svg.
 
 // mirrored: the wall on the left, the ∀ leaning left onto it, so wall and ∀ read as an N
 export const WALL = { x: 14, y: 13.2, w: 12, rowH: 8, gap: 1.6, rows: 4 }

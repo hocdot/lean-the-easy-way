@@ -1,6 +1,6 @@
 // Where each page is on the Verso site, relative to the site root (Verso's <base> makes relative
 // links work from any page). These must match the `file :=` names in site/LeanForAll/*.lean:
-// `make verso` checks that every one of them was generated (scripts/check-verso.ts).
+// `make site` checks that every one of them was generated (scripts/check-verso.ts).
 import { WEEKS } from '../content/index.ts'
 import type { Lesson, Week } from '../content/types.ts'
 

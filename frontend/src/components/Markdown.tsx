@@ -28,7 +28,7 @@ export function Markdown({ text, compact = false }: { text: string; compact?: bo
           case 'ol': return <ol key={i}>{b.items.map((it, j) => <li key={j}><Inline text={it} /></li>)}</ol>
           case 'code':
             return b.lang === 'lean'
-              ? <CodeBlock key={i} code={b.code} runnable={b.expect !== 'skip'} mathlib={b.mathlib} />
+              ? <CodeBlock key={i} code={b.code} runnable={b.expect !== 'skip'} />
               : <GoalText key={i} text={b.code} />
         }
       })}

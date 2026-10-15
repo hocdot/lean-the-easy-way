@@ -1,7 +1,7 @@
 // Generated number questions: well-formed, and every right answer confirmed by real Lean.
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { leanReady, runLean } from '../../backend/lean.ts'
+import { leanReady, runLean } from '../scripts/lean.ts'
 import { MISCONCEPTIONS } from '../src/content/misconceptions.ts'
 import { generateNumber } from '../src/practice/numbers.ts'
 

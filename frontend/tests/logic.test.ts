@@ -2,7 +2,7 @@
 // separate them, and the Lean it prints parses the way it is meant to (checked by Lean itself).
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { leanReady, runLean } from '../../backend/lean.ts'
+import { leanReady, runLean } from '../scripts/lean.ts'
 import {
   evaluate, generate, LEAN_PREAMBLE, mutants, PREDS, SEEDS, separatingWorld, toEnglish, toLean, toLeanBracketed,
   type Formula,

@@ -1,11 +1,7 @@
 name = "tutor"
-defaultTargets = ["Tutor", "tutor-run"]
+defaultTargets = ["tutor-run"]
 
-# Tutor.Audit: the `#tutor_audit` command the runner appends when auditing
-[[lean_lib]]
-name = "Tutor"
-
-# Runs a Lean file from stdin and prints its messages, tactic steps and audit as JSON
+# Runs a Lean file from stdin and prints its messages and tactic steps as JSON
 [[lean_exe]]
 name = "tutor-run"
 root = "Main"

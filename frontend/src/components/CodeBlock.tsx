@@ -1,7 +1,7 @@
-// A Lean code block in a lesson: highlighted, runnable, and steppable when it holds a proof.
+// A Lean code block in a question: highlighted, with Lean's saved answer behind its Run button,
+// and steppable when it holds a proof.
 import { useState } from 'react'
-import { BackendDown, capabilities, isSaved, runLean, STATIC, walkable, type RunResult } from '../api'
-import { openInLab } from '../nav'
+import { runLean, walkable, type RunResult } from '../lean/results'
 import { LeanLines } from './LeanText'
 import { MessageList, Stepper, Verdict } from './RunResult'
 
@@ -9,23 +9,19 @@ type State =
   | { s: 'idle' }
   | { s: 'running' }
   | { s: 'done'; result: RunResult }
-  | { s: 'failed'; error: string; down: boolean }
+  | { s: 'failed'; error: string }
 
-export function CodeBlock({ code, runnable = true, mathlib = false }: { code: string; runnable?: boolean; mathlib?: boolean }) {
+export function CodeBlock({ code, runnable = true }: { code: string; runnable?: boolean }) {
   const [state, setState] = useState<State>({ s: 'idle' })
   const [stepping, setStepping] = useState(false)
   const [step, setStep] = useState(0)
 
   const run = async () => {
     setState({ s: 'running' })
-    if (mathlib && !STATIC && !(await capabilities())?.mathlib && !(await isSaved(code))) {
-      setState({ s: 'failed', error: 'This example needs Mathlib, which is not installed here. Run `make mathlib` in the project folder (about 7 GB), then restart.', down: false })
-      return
-    }
     try {
       setState({ s: 'done', result: await runLean(code) })
     } catch (e) {
-      setState({ s: 'failed', error: (e as Error).message, down: e instanceof BackendDown })
+      setState({ s: 'failed', error: (e as Error).message })
     }
   }
 
@@ -38,30 +34,19 @@ export function CodeBlock({ code, runnable = true, mathlib = false }: { code: st
   return (
     <div className="codeblock">
       <pre className="code"><LeanLines code={code} mark={marked} marks={marks} /></pre>
-      {(runnable || !STATIC) && <div className="code-bar">
-        {runnable ? (
-          <button className="btn small" onClick={run} disabled={state.s === 'running'}>
-            {state.s === 'running' ? 'Running…' : result ? 'Run again' : 'Run'}
-          </button>
-        ) : (
-          <span className="muted small">Shown for reading only</span>
-        )}
-        {mathlib && state.s === 'running' && <span className="muted small">Loading Mathlib takes a few seconds…</span>}
+      {runnable && <div className="code-bar">
+        <button className="btn small" onClick={run} disabled={state.s === 'running'}>
+          {state.s === 'running' ? 'Running…' : result ? 'Run again' : 'Run'}
+        </button>
         {walk.length > 0 && (
           <button className={`btn small ${stepping ? 'on' : ''}`} onClick={() => setStepping(!stepping)}>
             {stepping ? 'Hide steps' : 'Step through'}
           </button>
         )}
-        {!STATIC && (
-          <button className="btn ghost small push" onClick={() => openInLab(code)} title="Edit and run this code in the Lab">
-            Open in Lab
-          </button>
-        )}
       </div>}
       {state.s === 'failed' && (
         <div className="run-out">
-          <div className="verdict bad">{state.down ? 'Cannot reach Lean.' : state.error}</div>
-          {state.down && !STATIC && <p className="muted small">Start the local backend with <code>make dev</code> (see the README).</p>}
+          <div className="verdict bad">{state.error}</div>
         </div>
       )}
       {result && (

@@ -1,6 +1,6 @@
 // What Lean said about a piece of code: a one-line verdict, its messages, and a stepper
 // through the proof's goals.
-import { verdict, walkable, type Message, type RunResult, type Step } from '../api'
+import { verdict, walkable, type Message, type RunResult, type Step } from '../lean/results'
 import { hintFor } from '../lean/hints'
 import { Goals } from './Goal'
 

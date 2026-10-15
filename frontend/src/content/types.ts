@@ -1,5 +1,6 @@
-// The shape of the course. Lessons are plain data, so `make test` can run every piece of
-// Lean in them through the real Lean and check that each claim about Lean is true.
+// The shape of the course data: each lesson's title, goal and questions (the lesson pages
+// themselves are in site/LeanForAll). Plain data, so `make test` can run every piece of Lean in
+// the questions through real Lean and check that each claim about Lean is true.
 import type { MisconceptionId } from './misconceptions.ts'
 
 /**
@@ -14,7 +15,7 @@ import type { MisconceptionId } from './misconceptions.ts'
  *   ```lean mathlib    needs Mathlib: run (and checked) only where Mathlib is installed;
  *                      combine with a flag, e.g. ```lean mathlib error
  *
- * Runnable blocks get a "Run" button that shows what Lean says.
+ * Runnable blocks get a "Run" button that shows Lean's saved answer.
  */
 export type Markdown = string
 
@@ -60,15 +61,8 @@ export interface Lesson {
   label?: string
   /** one sentence: what you can do after this lesson */
   goal: string
-  /** short screens of explanation, read in order */
-  cards: Markdown[]
-  /** the check at the end, 4–7 questions */
+  /** its questions, in the order its page asks them (the page, in site/LeanForAll, has the text) */
   questions: Question[]
-  /**
-   * Hands-on lessons: explanation screens and questions interleaved, in this order. When set,
-   * it is the whole lesson, and `cards` and `questions` are left empty.
-   */
-  flow?: (Markdown | Question)[]
 }
 
 export interface Week {

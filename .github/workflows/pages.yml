@@ -74,7 +74,7 @@ jobs:
 
       # the question widgets, then the Lean-checked pages, then the check that the pages and the
       # course data agree
-      - run: make verso
+      - run: make site
 
       - uses: actions/upload-pages-artifact@v3
         with:

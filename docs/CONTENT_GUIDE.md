@@ -14,18 +14,33 @@ explanation, and practice questions are chosen to target it.
 
 ## Files
 
-- `frontend/src/content/types.ts`: the data shapes (`Week`, `Lesson`, `Question`, `Option`) and
-  the Markdown subset allowed in text.
+- `site/LeanForAll/DayNN.lean` (and `CaseN.lean` for Advanced): the lesson pages, in
+  [Verso](https://verso.lean-lang.org/). Day 1 is the reference for tone, length and format.
+- `frontend/src/content/week1.ts` … `week4.ts`, `advanced.ts`: each lesson's title, goal and
+  questions.
 - `frontend/src/content/misconceptions.ts`: the misconception catalog. Every wrong option must
   name one of its ids.
-- `frontend/src/content/week1.ts` … `week4.ts`: the lessons. Week 1 is the reference for tone,
-  length and format.
+- `frontend/src/content/types.ts`: the data shapes (`Week`, `Lesson`, `Question`, `Option`) and
+  the Markdown subset allowed in question text.
+
+A lesson page in Verso:
+
+- Lean code goes in ```` ```lean -keep ```` blocks (`-keep`: each example stands alone).
+  Add `+error` when Lean must reject it. Name a block, ```` ```lean -keep (name := day09_2) ````,
+  and put Lean's answer under it in ```` ```leanOutput day09_2 ````: the build fails if Lean says
+  something else.
+- A question is ```` ```question ```` with its id on the next line; its options and feedback
+  live in the week file.
+- The page is shown one step at a time. A step begins at each `#` heading and around each
+  question; ```` ```stepBreak ```` starts one anywhere else.
+- `make site` builds and checks every page; it ends by checking the pages ask exactly the
+  questions the week files list for them.
 
 ## Voice
 
 - Short sentences. Plain words. Explain every symbol and every term the first time it appears.
 - Assume no mathematics beyond school arithmetic and no programming.
-- Each card is one idea, about 60–150 words, usually with one small code example.
+- Each step is one idea, about 60–150 words, usually with one small code example.
 - Prefer concrete examples over definitions. Show, then name.
 - Keep the auditor's point of view: end lessons with *why this matters when checking someone
   else's Lean*.
@@ -33,7 +48,7 @@ explanation, and practice questions are chosen to target it.
 
 ## Lessons
 
-Each lesson has 3–5 cards and 5–6 questions. Questions:
+Each lesson has 3–5 steps of reading and 5–6 questions. Questions:
 
 - 2–4 options, exactly one `correct: true`. Wrong options are plausible mistakes, each with a
   `misconception` id. Every option has a `why` that explains concretely.
@@ -42,13 +57,15 @@ Each lesson has 3–5 cards and 5–6 questions. Questions:
 - "Pick the next step" questions: `fillIn: true`, `code` contains `???` where the tactic goes,
   each option's `text` is exactly one tactic in backticks, e.g. `` '`intro h`' ``. The test
   checks the correct tactic completes the proof (no errors) and every wrong one makes Lean
-  report an error. Picking an option in the app runs it through real Lean and shows the result.
+  report an error. Picking an option shows what Lean said about it (saved by `make snapshot`).
 - Question ids: `dNN-qM` (e.g. `d09-q3`), unique.
 
 ## Lean code must be true
 
-Every runnable code block (```` ```lean ````, `code` fields) is run through real Lean
-(core Lean 4.35, **no Mathlib**) by the test. Flags on a fence: `lean error` (must fail),
+Lean in the lesson pages is checked by Verso when the site is built (`make site`). Lean in the
+questions (`code` fields, and code blocks in question text) is run through real Lean
+(core Lean 4.35, **no Mathlib**) by the test, and `make snapshot` saves Lean's answers, which
+the site shows (it has no Lean server). Flags on a fence: `lean error` (must fail),
 `lean sorry` (accepted with a `sorry` warning), `lean fragment` (not run: use only for
 Mathlib-style code that cannot run without Mathlib; double-check those claims carefully).
 
@@ -58,11 +75,11 @@ Check your work, for one day at a time:
 cd frontend && DAY=9 npm test
 ```
 
-To see what Lean says about a snippet (messages, goal states after each tactic, and the audit):
+To see what Lean says about a snippet (messages, and the goals after each tactic):
 
 ```console
 cd lean && ELAN_HOME=$PWD/../.tools/elan LEAN_PATH=$PWD/.lake/build/lib/lean \
-  .lake/build/bin/tutor-run --audit < some-file.lean | python3 -m json.tool
+  .lake/build/bin/tutor-run < some-file.lean | python3 -m json.tool
 ```
 
 Facts about core Lean 4.35 worth knowing:

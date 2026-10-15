@@ -1,6 +1,6 @@
 // A lesson page one step at a time, as on the React site. Verso writes the whole lesson as one
 // page; this splits it into steps and shows one, with the progress bar and Back / Continue.
-// A step begins at each ```stepBreak``` marker (where the React site's cards began), at each
+// A step begins at each ```stepBreak``` marker, at each
 // section heading, and around each question (a question is a step of its own). Continue waits
 // for the question on screen to be answered. The place in the lesson is saved, and a link to
 // something later in the page (from search, say) opens the step that holds it.

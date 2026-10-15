@@ -295,8 +295,9 @@ main code.hl.lean.block {
 }
 .lfa .home .week-card:hover { border-color: var(--line-2); transform: translateY(-1px); }
 .lfa .home .week-card-title { font: 400 22px/1.15 var(--font-display); color: var(--ink); }
-.lfa .home .week-card-summary { flex: 1; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
-.lfa .home .week-card-progress { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.lfa .home .week-card-summary { font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+/* the summary in full; the progress bar sits at the card's foot, level across the row */
+.lfa .home .week-card-progress { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 10px; }
 .lfa .home .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .lfa .home .bar i { display: block; height: 100%; border-radius: 3px; background: var(--good); }
 .lfa .home .home-note { margin-top: 20px; }
@@ -310,7 +311,6 @@ main code.hl.lean.block {
 .lfa .home .hero-title { text-align: left !important; }
 .header-title h1 { font-size: 1.55rem !important; margin: 0; }
 .header-title-wrapper { display: flex; align-items: center; }
-.lfa .home .week-card-summary { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 /* the start page's cards replace Verso's contents list there */
 section:has(> .titlepage) > section:has(> ol.section-toc) { display: none; }
 @media screen and (max-width: 700px) {
