@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
+# The site is the Verso version (site/): every lesson's Lean is checked by real Lean while the
+# pages are built, so this installs Lean and Mathlib's prebuilt files first. Pushes to `verso`
+# only build (a test of the build); pushes to `main` also publish.
 on:
   push:
-    branches: [main]
+    branches: [main, verso]
   workflow_dispatch:
 
 permissions:
@@ -11,36 +14,73 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  # where the Makefile keeps Lean and Mathlib's download cache
+  ELAN_HOME: ${{ github.workspace }}/.tools/elan
+  MATHLIB_CACHE_DIR: ${{ github.workspace }}/.tools/mathlib-cache
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+
+      # Mathlib's built files take about 7 GB: make room
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-      # Lean is not installed here: the tests check the content and that the saved Lean
-      # answers (src/content/lean-results.json, from `make snapshot`) cover every example
+        working-directory: frontend
+      # the course data the questions come from: content and practice checks
       - run: npm test
-      - run: npm run build
-        env:
-          BASE_PATH: /${{ github.event.repository.name }}/
-          VITE_STATIC: '1'
-          VITE_REPO_URL: https://github.com/${{ github.repository }}
+        working-directory: frontend
+
+      - name: Install Lean
+        run: |
+          mkdir -p .tools
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o .tools/elan-init.sh
+          sh .tools/elan-init.sh -y --no-modify-path --default-toolchain none
+          echo "$ELAN_HOME/bin" >> "$GITHUB_PATH"
+          "$ELAN_HOME/bin/elan" toolchain install "$(cat lean/lean-toolchain)"
+          "$ELAN_HOME/bin/elan" default "$(cat lean/lean-toolchain)"
+
+      # Verso and the site's own build, kept between runs (Mathlib comes from its own cache below)
+      - uses: actions/cache@v4
+        with:
+          path: |
+            site/.lake
+            mathlib/.lake/packages/verso
+            mathlib/.lake/packages/subverso
+            mathlib/.lake/packages/MD4Lean
+            mathlib/.lake/packages/illuminate
+          key: verso-${{ hashFiles('site/lake-manifest.json', 'mathlib/lake-manifest.json', 'lean/lean-toolchain') }}-${{ github.sha }}
+          restore-keys: verso-${{ hashFiles('site/lake-manifest.json', 'mathlib/lake-manifest.json', 'lean/lean-toolchain') }}-
+
+      # Mathlib's prebuilt files, at the versions pinned in mathlib/lake-manifest.json
+      # (no `lake update`, so the versions stay exactly those)
+      - name: Get Mathlib
+        run: lake exe cache get
+        working-directory: mathlib
+
+      # the question widgets, then the Lean-checked pages, then the check that the pages and the
+      # course data agree
+      - run: make verso
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend/dist
+          path: site/_out/html-multi
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     environment:

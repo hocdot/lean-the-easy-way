@@ -44,10 +44,11 @@ Lean code can run programs (`#eval`), so do not expose the backend to a network.
 
 ## Publish on GitHub Pages
 
-The hosted site has no Lean server. The Run and Step through buttons, and the feedback on
-"pick the next step" questions, show Lean's real answers. `make snapshot` saves them in
-`frontend/src/content/lean-results.json`. The Lab says "coming soon" there. Everything else
-is the same as running locally.
+The published site is the Verso version (below). GitHub's build machine installs Lean, downloads
+Mathlib's prebuilt files and runs `make verso`, so every piece of Lean on the site is checked by
+real Lean on each build (a first build takes a while; later ones reuse a cache). The Lab says
+"coming soon" there: it needs a Lean server. The React site (`frontend/`, `make dev`) is still
+how you use the Lab locally; the branch `react` keeps the version of the site published before.
 
 Once:
 
@@ -66,21 +67,18 @@ Once:
    "Deploy to GitHub Pages" and press **Run workflow** (or **Re-run all jobs**).
 5. When it is green, the site is at `https://<your-user>.github.io/lean-the-easy-way/`.
 
-Every push to `main` then rebuilds the site. After changing lessons:
+Every push to `main` then rebuilds and publishes the site (a push to `verso` only builds it, as a
+test). After changing lessons:
 
 ```console
-make snapshot   # save Lean's answers for the changed examples (needs Lean and Mathlib)
-make test       # check everything with the real Lean
-make preview    # look at the exact hosted build on http://localhost:4173/lean-the-easy-way/
+make verso         # check every example with real Lean and build the pages
+make verso-serve   # look at them on http://localhost:8790
 git commit -am "…" && git push
 ```
 
-GitHub's build machine has no Lean. Its tests check the lessons, and check that the saved answers
-cover every example. If you forget `make snapshot`, the build fails and tells you so.
+## The Verso version
 
-## The Verso version (branch `verso`)
-
-The lessons are also written in [Verso](https://verso.lean-lang.org/), Lean's own documentation
+The lessons are written in [Verso](https://verso.lean-lang.org/), Lean's own documentation
 tool, in `site/`. Verso elaborates every example with real Lean when the site is built: hovering
 over code shows each name's type and documentation and the goals at each tactic, and each
 example's output (`#eval` results, errors, `sorry` warnings) is shown under it and checked
