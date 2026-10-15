@@ -40,6 +40,9 @@ export interface Question {
   codeExpect?: Expect
   /** `code` needs Mathlib (run and checked only where Mathlib is installed) */
   mathlib?: boolean
+  /** made up on the spot by Practice: its code has no saved Lean answer, so it runs only
+   * where there is a Lean server */
+  generated?: boolean
   /** 2–4 options, exactly one correct; shown in this order */
   options: Option[]
   /**

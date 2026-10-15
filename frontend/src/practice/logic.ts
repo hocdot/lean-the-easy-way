@@ -162,6 +162,8 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1) + '.'
 }
 
+const Q1 = (f: Formula) => (f.k === 'all' || f.k === 'ex' ? f.k : null)
+
 function pattern(f: Formula): string | null {
   if (f.k === 'all' || f.k === 'ex') {
     const v = f.v
@@ -175,7 +177,9 @@ function pattern(f: Formula): string | null {
     if (body.k === 'and' || body.k === 'or') {
       const a = literal(body.a, v)
       const b = literal(body.b, v)
-      if (a && b) return `${q} ${says(a)} ${body.k} ${says(b)}`
+      // "does not X and Y" could be misread as "does not (X and Y)": put the positive part
+      // first ("Y and does not X"), which means the same since and/or work in either order
+      if (a && b) return a.neg && !b.neg ? `${q} ${says(b)} ${body.k} ${says(a)}` : `${q} ${says(a)} ${body.k} ${says(b)}`
     }
     if (f.k === 'all' && body.k === 'imp') {
       const a = literal(body.a, v)
@@ -190,6 +194,22 @@ function pattern(f: Formula): string | null {
         if (a && c && d) return `every student who ${says(a)} and ${says(c)} ${says(d)}`
       }
     }
+    if (f.k === 'all' && body.k === 'imp' && body.a.k === 'or') {
+      const a = literal(body.a.a, v)
+      const b = literal(body.a.b, v)
+      const c = literal(body.b, v)
+      if (a && b && c) return `every student who ${says(a)} or ${says(b)} ${says(c)}`
+    }
+    if (body.k === 'not' && body.f.k === 'and' && f.k === 'all') {
+      const a = literal(body.f.a, v)
+      const b = literal(body.f.b, v)
+      if (a && b && !a.neg && !b.neg) return `no student both ${VERB[a.p].s} and ${VERB[b.p].s}`
+    }
+    if (body.k === 'and' && f.k === 'ex') {
+      const a = literal(body.a, v)
+      const b = literal(body.b, v)
+      if (a && b && !a.neg && b.neg) return `some student ${says(a)} but ${says(b)}`
+    }
     if (f.k === 'all' && body.k === 'iff') {
       const a = literal(body.a, v)
       const b = literal(body.b, v)
@@ -199,6 +219,14 @@ function pattern(f: Formula): string | null {
     if (body.k === 'all' || body.k === 'ex') {
       const w = body.v
       const inner = body.f
+      if (Q1(f) === 'all' && inner.k === 'imp' && body.k === 'all') {
+        const l = literal(inner.a, w)
+        if (l && !l.neg && inner.b.k === 'helps' && inner.b.a === v && inner.b.b === w) return `every student helps every student who ${says(l)}`
+      }
+      if (Q1(f) === 'all' && inner.k === 'and' && body.k === 'ex') {
+        const l = literal(inner.a, w)
+        if (l && !l.neg && inner.b.k === 'helps' && inner.b.a === v && inner.b.b === w) return `every student helps some student who ${says(l)}`
+      }
       if (inner.k === 'helps') {
         const subjFirst = inner.a === v && inner.b === w
         const objFirst = inner.a === w && inner.b === v
@@ -215,6 +243,16 @@ function pattern(f: Formula): string | null {
         }
       }
     }
+  }
+  if (f.k === 'imp' && (f.a.k === 'all' || f.a.k === 'ex') && f.b.k === 'all') {
+    const l1 = literal(f.a.f, f.a.v)
+    const l2 = literal(f.b.f, f.b.v)
+    if (l1 && l2 && !l1.neg && !l2.neg) return `if ${f.a.k === 'all' ? 'every' : 'some'} student ${VERB[l1.p].s}, then every student ${VERB[l2.p].s}`
+  }
+  if (f.k === 'and' && f.a.k === 'all' && f.b.k === 'all') {
+    const l1 = literal(f.a.f, f.a.v)
+    const l2 = literal(f.b.f, f.b.v)
+    if (l1 && l2 && !l1.neg && !l2.neg) return `every student ${VERB[l1.p].s}, and every student ${VERB[l2.p].s}`
   }
   if (f.k === 'not' && f.f.k === 'all') {
     const l = literal(f.f.f, f.f.v)
@@ -352,6 +390,50 @@ export const SEEDS: Seed[] = [
       M(or(all('s', P(a)), all('s', P(b))), 'quantifier-order'),
       M(all('s', and(P(a), P(b))), 'forall-and'),
       M(all('s', imp(P(a), P(b))), 'converse'),
+    ],
+  },
+  { // every student who a's or b's, c's
+    make: (a, b, c) => all('s', imp(or(P(a), P(b)), P(c))),
+    mutate: (a, b, c) => [
+      M(all('s', or(P(a), imp(P(b), P(c)))), 'not-scope'),
+      M(all('s', imp(and(P(a), P(b)), P(c))), 'statement-drift'),
+      M(all('s', imp(P(c), or(P(a), P(b)))), 'converse'),
+      M(ex('s', imp(or(P(a), P(b)), P(c))), 'exists-implies'),
+    ],
+  },
+  { // some student a's but does not b
+    make: (a, b) => ex('s', and(P(a), not(P(b)))),
+    mutate: (a, b) => [
+      M(not(ex('s', and(P(a), P(b)))), 'not-scope'),
+      M(ex('s', not(and(P(a), P(b)))), 'not-scope'),
+      M(all('s', and(P(a), not(P(b)))), 'statement-drift'),
+      M(ex('s', imp(P(a), not(P(b)))), 'exists-implies'),
+    ],
+  },
+  { // if every student a's, then every student b's
+    make: (a, b) => imp(all('s', P(a)), all('s', P(b))),
+    mutate: (a, b) => [
+      M(all('s', imp(P(a), P(b))), 'quantifier-order'),
+      M(imp(all('s', P(b)), all('s', P(a))), 'converse'),
+      M(imp(ex('s', P(a)), all('s', P(b))), 'statement-drift'),
+      M(and(all('s', P(a)), all('s', P(b))), 'hypothesis-is-fact'),
+    ],
+  },
+  { // every student helps every student who a's
+    make: (a) => all('s', all('t', imp(P(a, 't'), H('s', 't')))),
+    mutate: (a) => [
+      M(all('s', ex('t', and(P(a, 't'), H('s', 't')))), 'quantifier-order'),
+      M(all('s', all('t', and(P(a, 't'), H('s', 't')))), 'forall-and'),
+      M(all('s', all('t', imp(H('s', 't'), P(a, 't')))), 'converse'),
+    ],
+  },
+  { // no student a's and b's
+    make: (a, b) => all('s', not(and(P(a), P(b)))),
+    mutate: (a, b) => [
+      M(all('s', and(not(P(a)), P(b))), 'not-scope'),
+      M(all('s', and(not(P(a)), not(P(b)))), 'not-scope'),
+      M(not(all('s', and(P(a), P(b)))), 'quantifier-order'),
+      M(ex('s', not(and(P(a), P(b)))), 'statement-drift'),
     ],
   },
 ]

@@ -5,13 +5,14 @@ import { labelOf, LESSONS, questionsOf } from '../content'
 import { MISCONCEPTIONS, type MisconceptionId } from '../content/misconceptions'
 import type { Question } from '../content/types'
 import { generate, type GenQuestion } from '../practice/logic'
+import { generateNumber } from '../practice/numbers'
 import { actions, dueExplanation, likelihoods, useProgress, weakSpots, type Progress } from '../store'
 import { GenQuestionCard } from './GenQuestionCard'
 import { Inline } from './Markdown'
 import { MisconceptionCard } from './MisconceptionCard'
 import { QuestionCard } from './QuestionCard'
 
-type Item = { kind: 'gen'; q: GenQuestion } | { kind: 'review'; q: Question }
+type Item = { kind: 'gen'; q: GenQuestion } | { kind: 'review' | 'num'; q: Question }
 
 const SET_SIZE = 8
 
@@ -46,14 +47,23 @@ function pickWeighted<T>(xs: { q: T; weight: number }[], n: number): T[] {
   return out
 }
 
+/**
+ * A set: lesson questions to review (up to 3, once lessons are done), questions about Lean's
+ * number conventions (2, or 3 when those are a weak spot), and generated logic questions for
+ * the rest, all leaning toward the learner's likely misconceptions.
+ */
 function newSet(p: Progress): Item[] {
   const weights = likelihoods(p)
   const reviews = pickWeighted(reviewPool(p), 3)
+  const numbersWeak = weakSpots(p).some((w) => w.id === 'nat-subtraction' || w.id === 'division-convention')
+  const nNumbers = numbersWeak ? 3 : 2
   const base = Math.floor(Math.random() * 1e9)
-  const gens: Item[] = Array.from({ length: SET_SIZE - reviews.length }, (_, i) => ({ kind: 'gen', q: generate(base + i, weights) }))
-  const items: Item[] = [...gens]
-  // spread the review questions through the set
-  reviews.forEach((q, i) => items.splice(Math.min(items.length, 2 + i * 3), 0, { kind: 'review', q }))
+  const logic: Item[] = Array.from({ length: SET_SIZE - reviews.length - nNumbers }, (_, i) => ({ kind: 'gen', q: generate(base + i, weights) }))
+  const numbers: Item[] = Array.from({ length: nNumbers }, (_, i) => ({ kind: 'num', q: generateNumber(base + 100 + i, weights).q }))
+  // interleave so no kind comes in a long run
+  const items: Item[] = []
+  const queues = [logic, numbers, reviews.map((q): Item => ({ kind: 'review', q }))]
+  while (queues.some((q) => q.length)) for (const q of queues) if (q.length) items.push(q.shift()!)
   return items
 }
 
@@ -62,6 +72,8 @@ export function PracticeView() {
   const [items, setItems] = useState<Item[]>(() => newSet(p))
   const [index, setIndex] = useState(0)
   const [results, setResults] = useState<boolean[]>([])
+  const [setNumber, setSetNumber] = useState(1)
+  const practiced = p.answers.filter((a) => !/^d\d+-/.test(a.q)).length
   const weak = weakSpots(p)
   const due = dueExplanation(p)
   const [open, setOpen] = useState<MisconceptionId | null>(null)
@@ -74,6 +86,7 @@ export function PracticeView() {
     setItems(newSet(p))
     setIndex(0)
     setResults([])
+    setSetNumber(setNumber + 1)
   }
 
   useEffect(() => {
@@ -98,8 +111,9 @@ export function PracticeView() {
       <header className="page-head">
         <h2>Practice</h2>
         <p className="muted">
-          Short sets of {SET_SIZE} questions. They lean toward the ideas you have mixed up recently, and bring back lesson questions
-          you missed. {doneDays < 6 && 'The generated ones use the logic of Week 1 (days 3 to 6).'}
+          Practice never runs out: questions come in sets of {SET_SIZE}, and a new set is made each time, leaning toward the ideas
+          you have mixed up recently and bringing back lesson questions you missed.{' '}
+          {doneDays < 6 && 'Most of it uses Week 1 (days 2 to 6).'}
         </p>
       </header>
 
@@ -129,7 +143,12 @@ export function PracticeView() {
               <span key={i} className={`dot ${results[i] === true ? 'good' : results[i] === false ? 'bad' : ''} ${i === index ? 'current' : ''}`} />
             ))}
           </div>
-          <span className="eyebrow">{item.kind === 'review' ? `From ${labelOf(LESSONS.find((l) => questionsOf(l).includes(item.q))!).toLowerCase()}` : 'Generated'}</span>
+          <span className="eyebrow">
+            Set {setNumber}
+            {' · '}
+            {item.kind === 'review' ? `from ${labelOf(LESSONS.find((l) => questionsOf(l).includes(item.q))!).toLowerCase()}` : item.kind === 'num' ? 'numbers' : 'logic'}
+            {practiced > 0 && ` · ${practiced} answered in all`}
+          </span>
         </div>
 
         {item.kind === 'gen' ? (
@@ -140,7 +159,7 @@ export function PracticeView() {
             question={item.q}
             onAnswer={(c, i) => {
               const m = item.q.options[i].misconception
-              record(c, m ? [m] : [], `review:${item.q.id}`)
+              record(c, m ? [m] : [], item.kind === 'review' ? `review:${item.q.id}` : item.q.id)
             }}
           />
         )}
@@ -151,7 +170,7 @@ export function PracticeView() {
               <span>
                 <strong>{results.filter(Boolean).length} of {items.length}</strong> right.
               </span>
-              <button className="btn primary" onClick={restart}>Another set</button>
+              <button className="btn primary" onClick={restart}>Next set</button>
             </>
           ) : (
             <>

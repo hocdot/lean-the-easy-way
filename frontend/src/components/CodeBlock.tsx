@@ -38,7 +38,7 @@ export function CodeBlock({ code, runnable = true, mathlib = false }: { code: st
   return (
     <div className="codeblock">
       <pre className="code"><LeanLines code={code} mark={marked} marks={marks} /></pre>
-      <div className="code-bar">
+      {(runnable || !STATIC) && <div className="code-bar">
         {runnable ? (
           <button className="btn small" onClick={run} disabled={state.s === 'running'}>
             {state.s === 'running' ? 'Running…' : result ? 'Run again' : 'Run'}
@@ -57,7 +57,7 @@ export function CodeBlock({ code, runnable = true, mathlib = false }: { code: st
             Open in Lab
           </button>
         )}
-      </div>
+      </div>}
       {state.s === 'failed' && (
         <div className="run-out">
           <div className="verdict bad">{state.down ? 'Cannot reach Lean.' : state.error}</div>

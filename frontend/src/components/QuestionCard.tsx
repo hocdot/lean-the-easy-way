@@ -1,7 +1,7 @@
 // One multiple-choice question from a lesson, with immediate, concrete feedback.
 // For "pick the next step" questions, the picked tactic is run through real Lean.
 import { useEffect, useState } from 'react'
-import { BackendDown, runLean, type RunResult } from '../api'
+import { BackendDown, runLean, STATIC, type RunResult } from '../api'
 import { fillIn, tacticOf } from '../content'
 import { MISCONCEPTIONS } from '../content/misconceptions'
 import type { Question } from '../content/types'
@@ -78,7 +78,7 @@ export function QuestionCard({
       {q.code && (q.fillIn ? (
         <pre className="code fill"><LeanLines code={q.code} /></pre>
       ) : (
-        <CodeBlock code={q.code} runnable={q.codeExpect !== 'skip'} mathlib={q.mathlib} />
+        <CodeBlock code={q.code} runnable={q.codeExpect !== 'skip' && !(q.generated && STATIC)} mathlib={q.mathlib} />
       ))}
 
       <div className={`options ${isTactics ? 'inline' : ''}`} role="radiogroup">
