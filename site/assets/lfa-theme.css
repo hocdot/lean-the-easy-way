@@ -196,7 +196,8 @@ input, .search-box input { background: var(--surface); color: var(--ink); border
 .lfa header.page-head { display: none !important; }
 
 /* ---------- layout: one calm reading column ---------- */
-.content-wrapper { max-width: 860px !important; }
+/* one reading column, centered in the space beside the sidebar (Verso puts it at the left) */
+.content-wrapper { max-width: 860px !important; margin-left: auto !important; margin-right: auto !important; }
 main section > p, main section li { line-height: 1.65; }
 main section > h1 { font-size: 2.4rem; line-height: 1.1; margin-bottom: 0.4em; }
 
@@ -467,3 +468,24 @@ html .lfa { --font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif; }
 .verso-search-results .search-result .domain { text-align: left !important; color: var(--ink-3) !important; font: 400 11.5px/1.3 var(--font-ui) !important; margin-top: 2px !important; }
 #search-wrapper .search-result-link { gap: 0 !important; }
 #search-wrapper .search-result.full-text .header em { display: inline !important; }
+/* the site name stays beside the logo (Verso centers it over the text column on wide screens) */
+.header-title { margin: 0 !important; max-width: none !important; }
+
+/* ---------- narrower screens (or zoomed in): keep the header in one row ---------- */
+/* "Source code" and "Suggest an idea" go to the foot of the sidebar, as on phones */
+@media screen and (max-width: 1100px) {
+  .lfa-top-link { display: none; }
+  #meta-links { display: flex !important; }
+}
+@media screen and (max-width: 900px) {
+  :root { --search-bar-width: 150px; }
+}
+/* the start page: when its column is narrow, the logo sits above the text */
+.lfa .home { container-type: inline-size; }
+@container (max-width: 620px) {
+  .lfa .home .hero { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .lfa .home .hero-logo { width: 72px !important; height: 72px !important; margin-top: 0 !important; }
+}
+/* the search box stays one line high, whatever its width */
+#search-wrapper .combobox .cb_edit { white-space: nowrap !important; overflow: hidden; }
+#search-wrapper .cb_edit:empty:before { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -24,7 +24,7 @@ export function Home() {
       ;(window as { lfaFit?: (a: Element, b: HTMLElement) => void }).lfaFit?.(title.current, sub.current)
       const img = logo.current
       img.style.width = img.style.height = img.style.marginTop = ''
-      // on phones the logo sits above the text, at its own size
+      // in a narrow column (phones, zoomed in) the logo sits above the text, at its own size
       if (getComputedStyle(img.parentElement!).flexDirection === 'column') return
       const start = img.getBoundingClientRect().top
       // a bigger logo narrows the text, which can rewrap the pitch: settle in a few rounds
@@ -33,7 +33,8 @@ export function Home() {
         r.selectNodeContents(title.current)
         const top = r.getBoundingClientRect().top
         r.selectNodeContents(pitch.current)
-        const h = Math.round(r.getBoundingClientRect().bottom - top)
+        // never huge, however much the text wraps
+        const h = Math.min(220, Math.round(r.getBoundingClientRect().bottom - top))
         if (Math.abs(img.getBoundingClientRect().height - h) < 1) break
         img.style.width = img.style.height = `${h}px`
         img.style.marginTop = `${top - start}px`
